@@ -11,7 +11,6 @@ namespace BetterCoolers
         public override void OnLoad(Harmony harmony)
         {
             base.OnLoad(harmony);
-            Debug.Log("BetterCoolers Loaded");
             LocString.CreateLocStringKeys(typeof(BetterCoolerControlStrings.UI));
         }
 
@@ -89,7 +88,7 @@ namespace BetterCoolers
 
             public static float SetTargetHeat(AirConditioner conditioner)
             {
-                return conditioner.gameObject.GetComponent<BetterCoolerControl>().TargetTemp + 273f;
+                return conditioner.gameObject.GetComponent<BetterCoolerControl>().TargetTemp;
             }
         }
     }
