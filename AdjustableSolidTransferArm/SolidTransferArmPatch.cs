@@ -52,7 +52,9 @@ namespace AdjustableSolidTransferArm
 
             public static bool IsPhysicallyAccessible(bool flag, SolidTransferArm arm)
             {
-                return arm.GetComponent<SolidTransferArmControl>().isCrossWall || flag;
+                var control = arm.GetComponent<SolidTransferArmControl>();
+                if (control == null) return flag;
+                return control.isCrossWall || flag;
             }
         }
 
