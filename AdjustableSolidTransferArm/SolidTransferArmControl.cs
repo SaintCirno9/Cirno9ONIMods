@@ -21,7 +21,7 @@ public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheck
 
     public float GetSliderMax(int index)
     {
-        return 16;
+        return 32;
     }
 
     public float GetSliderValue(int index)
@@ -33,7 +33,6 @@ public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheck
     {
         range = Convert.ToInt32(percent);
         UpdateRange();
-        UpdateVisualizers();
     }
 
     public string GetSliderTooltipKey(int index)
@@ -74,7 +73,7 @@ public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheck
     public void SetCheckboxValue(bool value)
     {
         isCrossWall = value;
-        UpdateVisualizers();
+        UpdateRange();
     }
 
     protected override void OnPrefabInit()
@@ -110,44 +109,24 @@ public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheck
     {
         solidTransferArm.pickupRange = range;
         Traverse.Create(solidTransferArm).Field<ChoreConsumer>("choreConsumer").Value.SetReach(range);
-        rangeVisualizer.x = -range;
-        rangeVisualizer.y = -range;
-        rangeVisualizer.width = range * 2 + 1;
-        rangeVisualizer.height = range * 2 + 1;
-    }
-    
-    private void UpdateVisualizers()
-    {
-        AccessTools.Method(typeof(StationaryChoreRangeVisualizer), "UpdateVisualizers")
-            .Invoke(rangeVisualizer, null);
-    }
-    
-    private void ClearVisualizers()
-    {
-        AccessTools.Method(typeof(StationaryChoreRangeVisualizer), "ClearVisualizers")
-            .Invoke(rangeVisualizer, null);
+        rangeVisualizer.RangeMin.x = -range;
+        rangeVisualizer.RangeMin.y = -range;
+        rangeVisualizer.RangeMax.x = range;
+        rangeVisualizer.RangeMax.y = range;
+        if (isCrossWall)
+        {
+            rangeVisualizer.BlockingCb = _ => false;
+        }
+        else
+        {
+            rangeVisualizer.BlockingCb = Grid.IsSolidCell;
+        }
     }
 
     [Serialize] public int range;
     [Serialize] public bool isCrossWall;
-    // [Serialize] public bool hideRange;
 
     [MyCmpReq] public SolidTransferArm solidTransferArm;
-    [MyCmpReq] public StationaryChoreRangeVisualizer rangeVisualizer;
+    [MyCmpReq] public RangeVisualizer rangeVisualizer;
     [MyCmpAdd] public CopyBuildingSettings copyBuildingSettings;
-    // public void SetHideRange(bool value)
-    // {
-    //     hideRange = value;
-    //     if (hideRange)
-    //     {
-    //         ClearVisualizers();
-    //         return;
-    //     }
-    //     UpdateVisualizers();
-    // }
-    //
-    // public bool GetHideRange()
-    // {
-    //     return hideRange;
-    // }
 }
