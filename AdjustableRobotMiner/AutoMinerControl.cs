@@ -1,5 +1,6 @@
 ﻿using System;
 using HarmonyLib;
+using KSerialization;
 using UnityEngine;
 
 namespace AdjustableRobotMiner
@@ -8,7 +9,7 @@ namespace AdjustableRobotMiner
     {
         public int SliderDecimalPlaces(int index) => 0;
 
-        public float GetSliderMin(int index) => 1;
+        public float GetSliderMin(int index) => 2;
 
         public float GetSliderMax(int index) => 64;
 
@@ -17,11 +18,11 @@ namespace AdjustableRobotMiner
             switch (index)
             {
                 case 0:
-                    return autoMiner.height;
+                    return minerHeight;
                 case 1:
-                    return autoMiner.width;
+                    return minerWidth;
                 default:
-                    return autoMiner.height;
+                    return minerHeight;
             }
         }
 
@@ -30,14 +31,14 @@ namespace AdjustableRobotMiner
             switch (index)
             {
                 case 0:
-                    autoMiner.height = Convert.ToInt32(percent);
+                    minerHeight = Convert.ToInt32(percent);
                     break;
                 case 1:
-                    autoMiner.width = Convert.ToInt32(percent);
+                    minerWidth = Convert.ToInt32(percent);
                     break;
             }
 
-            UpdateVisualizers();
+            UpdateRange();
         }
 
         public string GetSliderTooltipKey(int index) =>
@@ -48,10 +49,13 @@ namespace AdjustableRobotMiner
 
         public string SliderTitleKey => "STRINGS.UI.UISIDESCREENS.AUTOMINERCONTROLSIDESCREEN.TITLE";
         public string SliderUnits => "tiles";
-        
+
         [MyCmpReq] public AutoMiner autoMiner;
-        [MyCmpReq] public StationaryChoreRangeVisualizer rangeVisualizer;
+        [MyCmpReq] public RangeVisualizer rangeVisualizer;
         [MyCmpAdd] public CopyBuildingSettings copyBuildingSettings;
+
+        [Serialize]public int minerHeight = 9;
+        [Serialize]public int minerWidth = 16;
 
         protected override void OnPrefabInit()
         {
@@ -59,20 +63,30 @@ namespace AdjustableRobotMiner
             Subscribe((int)GameHashes.CopySettings, OnCopySettings);
         }
 
+        protected override void OnSpawn()
+        {
+            base.OnSpawn();
+            UpdateRange();
+        }
+
         private void OnCopySettings(object data)
         {
             var component = ((GameObject)data).GetComponent<AutoMinerControl>();
             if (component == null) return;
-            autoMiner.height = component.autoMiner.height;
-            autoMiner.width = component.autoMiner.width;
+            minerHeight = component.minerHeight;
+            minerWidth = component.minerWidth;
+            UpdateRange();
         }
 
-        private void UpdateVisualizers()
+        private void UpdateRange()
         {
-            rangeVisualizer.width = autoMiner.width;
-            rangeVisualizer.height = autoMiner.height;
-            AccessTools.Method(typeof(StationaryChoreRangeVisualizer), "UpdateVisualizers")
-                .Invoke(rangeVisualizer, null);
+            autoMiner.height = minerHeight;
+            autoMiner.width = minerWidth;
+            autoMiner.x = -autoMiner.width / 2 + 1;
+            rangeVisualizer.RangeMin.x = -autoMiner.width / 2 + 1;
+            rangeVisualizer.RangeMin.y = -1;
+            rangeVisualizer.RangeMax.x = rangeVisualizer.RangeMin.x + autoMiner.width - 1;
+            rangeVisualizer.RangeMax.y = autoMiner.height - 2;
         }
     }
 }
