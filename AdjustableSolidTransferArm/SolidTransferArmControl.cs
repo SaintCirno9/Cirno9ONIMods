@@ -42,7 +42,7 @@ public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheck
 
     public string GetSliderTooltip(int index)
     {
-        return Strings.Get(GetSliderTooltipKey(0));
+        return Strings.Get(GetSliderTooltipKey(index));
     }
 
     public string SliderTitleKey => ControlTitleKey;
