@@ -10,7 +10,8 @@
                 {
                     public static LocString TITLE = "Robo-Miner Settings";
 
-                    public static LocString SLIDERTOOLTIP = "Adjust the mining range height/width.";
+                    public static LocString SLIDERTOOLTIP0 = "Adjust the mining range height.";
+                    public static LocString SLIDERTOOLTIP1 = "Adjust the mining range width.";
                 }
             }
         }

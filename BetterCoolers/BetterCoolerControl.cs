@@ -38,10 +38,7 @@ namespace BetterCoolers
             return "STRINGS.UI.UISIDESCREENS.CONDITIONERCONTROLUISIDESCREEN.TOOLTIP";
         }
 
-        public string GetSliderTooltip()
-        {
-            return string.Format(Strings.Get(GetSliderTooltipKey(0)), TargetTemp, SliderUnits);
-        }
+        public string GetSliderTooltip(int index)=>string.Format(Strings.Get(GetSliderTooltipKey(0)), TargetTemp, SliderUnits);
 
         public string SliderTitleKey => "STRINGS.UI.UISIDESCREENS.CONDITIONERCONTROLUISIDESCREEN.TITLE";
         public string SliderUnits => $"  {GameUtil.GetTemperatureUnitSuffix()}";

@@ -40,7 +40,7 @@ public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheck
         return "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.SLIDERTOOLTIP";
     }
 
-    public string GetSliderTooltip()
+    public string GetSliderTooltip(int index)
     {
         return Strings.Get(GetSliderTooltipKey(0));
     }

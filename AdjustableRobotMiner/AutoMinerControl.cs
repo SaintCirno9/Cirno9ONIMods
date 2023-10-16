@@ -41,11 +41,21 @@ namespace AdjustableRobotMiner
             UpdateRange();
         }
 
-        public string GetSliderTooltipKey(int index) =>
-            "STRINGS.UI.UISIDESCREENS.AUTOMINERCONTROLSIDESCREEN.SLIDERTOOLTIP";
+        public string GetSliderTooltipKey(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return "STRINGS.UI.UISIDESCREENS.AUTOMINERCONTROLSIDESCREEN.SLIDERTOOLTIP0";
+                case 1:
+                    return "STRINGS.UI.UISIDESCREENS.AUTOMINERCONTROLSIDESCREEN.SLIDERTOOLTIP1";
+                default:
+                    return "";
+            }
+        }
 
 
-        public string GetSliderTooltip() => Strings.Get(GetSliderTooltipKey(0));
+        public string GetSliderTooltip(int index) => Strings.Get(GetSliderTooltipKey(index));
 
         public string SliderTitleKey => "STRINGS.UI.UISIDESCREENS.AUTOMINERCONTROLSIDESCREEN.TITLE";
         public string SliderUnits => "tiles";
@@ -54,8 +64,8 @@ namespace AdjustableRobotMiner
         [MyCmpReq] public RangeVisualizer rangeVisualizer;
         [MyCmpAdd] public CopyBuildingSettings copyBuildingSettings;
 
-        [Serialize]public int minerHeight = 9;
-        [Serialize]public int minerWidth = 16;
+        [Serialize] public int minerHeight = 9;
+        [Serialize] public int minerWidth = 16;
 
         protected override void OnPrefabInit()
         {

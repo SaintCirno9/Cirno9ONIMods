@@ -4,7 +4,6 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using KMod;
 using UnityEngine;
-using PeterHan.PLib.UI;
 
 namespace AdjustableSolidTransferArm
 {
@@ -22,6 +21,7 @@ namespace AdjustableSolidTransferArm
             public static void Postfix(GameObject go)
             {
                 go.AddOrGet<SolidTransferArmControl>();
+                
             }
         }
 
