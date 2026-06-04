@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using KMod;
@@ -15,46 +15,54 @@ namespace AdjustableSolidTransferArm
             LocString.CreateLocStringKeys(typeof(SolidTransferArmControlStrings.UI));
         }
 
-        [HarmonyPatch(typeof(SolidTransferArmConfig), "DoPostConfigureComplete")]
-        public class SolidTransferArmConfigDoPostConfigureCompletePatch
+        [HarmonyPatch(typeof(SolidTransferArm), "OnPrefabInit")]
+        public class SolidTransferArmOnPrefabInitPatch
         {
-            public static void Postfix(GameObject go)
+            public static void Postfix(SolidTransferArm __instance)
             {
-                go.AddOrGet<SolidTransferArmControl>();
-                
+                if (__instance.GetComponent<RangeVisualizer>() != null)
+                {
+                    __instance.gameObject.AddOrGet<SolidTransferArmControl>();
+                }
             }
         }
 
         [HarmonyPatch(typeof(SolidTransferArm), "AsyncUpdate")]
         public class SolidTransferArmAsyncUpdatePatch
         {
+            private static readonly MethodInfo GridIsPhysicallyAccessibleMethod = AccessTools.Method(
+                typeof(Grid),
+                nameof(Grid.IsPhysicallyAccessible),
+                new[] { typeof(int), typeof(int), typeof(int), typeof(int), typeof(bool) });
+
+            private static readonly MethodInfo IsPhysicallyAccessibleMethod = AccessTools.Method(
+                typeof(SolidTransferArmAsyncUpdatePatch),
+                nameof(IsPhysicallyAccessible));
+
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-                var codes = instructions.ToList();
-                for (int i = 0; i < codes.Count; i++)
+                foreach (var instruction in instructions)
                 {
-                    if (codes[i].opcode == OpCodes.Ldloc_0 && codes[i + 1].opcode == OpCodes.Ldloc_1 &&
-                        codes[i + 2].opcode == OpCodes.Ldloc_S && codes[i + 3].opcode == OpCodes.Ldloc_3 &&
-                        codes[i + 4].opcode == OpCodes.Ldc_I4_1)
+                    if (instruction.Calls(GridIsPhysicallyAccessibleMethod))
                     {
-                        codes.InsertRange(i + 6, new[]
-                        {
-                            new CodeInstruction(OpCodes.Ldarg_0),
-                            new CodeInstruction(OpCodes.Call,
-                                typeof(SolidTransferArmAsyncUpdatePatch).GetMethod(nameof(IsPhysicallyAccessible)))
-                        });
-                        break;
+                        yield return new CodeInstruction(OpCodes.Ldarg_0);
+                        yield return new CodeInstruction(OpCodes.Call, IsPhysicallyAccessibleMethod);
+                    }
+                    else
+                    {
+                        yield return instruction;
                     }
                 }
-
-                return codes.AsEnumerable();
             }
 
-            public static bool IsPhysicallyAccessible(bool flag, SolidTransferArm arm)
+            public static bool IsPhysicallyAccessible(int x, int y, int x2, int y2, bool blockingTileVisible, SolidTransferArm arm)
             {
-                var control = arm.GetComponent<SolidTransferArmControl>();
-                if (control == null) return flag;
-                return control.isCrossWall || flag;
+                if (!SolidTransferArmControl.IsCellInRange(arm, x, y, x2, y2))
+                {
+                    return false;
+                }
+                return SolidTransferArmControl.IsCrossWallEnabled(arm) ||
+                       Grid.IsPhysicallyAccessible(x, y, x2, y2, blockingTileVisible);
             }
         }
     }

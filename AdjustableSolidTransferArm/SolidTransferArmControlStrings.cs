@@ -18,6 +18,10 @@ public static class SolidTransferArmControlStrings
                 public static LocString TITLE = "Auto-Sweeper Settings";
                 
                 public static LocString SLIDERTOOLTIP = "Adjust the sweep range";
+                public static LocString XRANGETITLE = "X Range";
+                public static LocString XRANGETOOLTIP = "Adjust the horizontal sweep range";
+                public static LocString YRANGETITLE = "Y Range";
+                public static LocString YRANGETOOLTIP = "Adjust the vertical sweep range";
                 
                 public static LocString CROSSWALLCHECKBOXLABEL = "Cross Wall";
                 public static LocString CROSSWALLCHECKBOXTOOLTIP = "Check to make the sweeper sweep through the wall";

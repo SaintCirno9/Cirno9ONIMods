@@ -1,54 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.Collections.Concurrent;
 using HarmonyLib;
 using KSerialization;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace AdjustableSolidTransferArm;
 
-public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheckboxControl
+public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, ICheckboxControl
 {
-    public int SliderDecimalPlaces(int index)
+    private static readonly ConcurrentDictionary<SolidTransferArm, SolidTransferArmControl> Controls = new();
+    private ISliderControl[] sliders;
+
+    public static bool IsCrossWallEnabled(SolidTransferArm arm)
     {
-        return 0;
+        return Controls.TryGetValue(arm, out var control) && control.isCrossWall;
     }
 
-    public float GetSliderMin(int index)
+    public static bool IsCellInRange(SolidTransferArm arm, int originX, int originY, int targetX, int targetY)
     {
-        return 1;
+        return !Controls.TryGetValue(arm, out var control) ||
+               Math.Abs(targetX - originX) <= control.rangeX &&
+               Math.Abs(targetY - originY) <= control.rangeY;
     }
 
-    public float GetSliderMax(int index)
+    public string SidescreenTitleKey => ControlTitleKey;
+    public ISliderControl[] sliderControls => sliders ??= new ISliderControl[]
     {
-        return 32;
+        new AxisSlider(this, 0),
+        new AxisSlider(this, 1)
+    };
+
+    public bool SidescreenEnabled()
+    {
+        return true;
     }
 
-    public float GetSliderValue(int index)
-    {
-        return range;
-    }
-
-    public void SetSliderValue(float percent, int index)
-    {
-        range = Convert.ToInt32(percent);
-        UpdateRange();
-    }
-
-    public string GetSliderTooltipKey(int index)
-    {
-        return "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.SLIDERTOOLTIP";
-    }
-
-    public string GetSliderTooltip(int index)
-    {
-        return Strings.Get(GetSliderTooltipKey(index));
-    }
-
-    public string SliderTitleKey => ControlTitleKey;
-    public string SliderUnits => "";
     public string ControlTitleKey => "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.TITLE";
-    
+
     public string HideRangeCheckboxLabel =>
         Strings.Get("STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.HIDERANGECHECKBOXLABEL");
 
@@ -64,7 +52,7 @@ public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheck
     public string CheckboxTitleKey => ControlTitleKey;
     public string CheckboxLabel => CrossWallCheckboxLabel;
     public string CheckboxTooltip => CrossWallCheckboxTooltip;
-    
+
     public bool GetCheckboxValue()
     {
         return isCrossWall;
@@ -86,7 +74,9 @@ public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheck
     {
         if (data is not GameObject go || go.GetComponent<SolidTransferArmControl>() is not
                 { } sourceControl) return;
-        range = sourceControl.range;
+        rangeX = sourceControl.rangeX;
+        rangeY = sourceControl.rangeY;
+        range = Math.Max(rangeX, rangeY);
         isCrossWall = sourceControl.isCrossWall;
         UpdateRange();
     }
@@ -94,25 +84,59 @@ public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheck
     protected override void OnSpawn()
     {
         base.OnSpawn();
-        if (range < 1)
+        NormalizeRanges();
+        UpdateRange();
+        Controls[solidTransferArm] = this;
+    }
+
+    protected override void OnCleanUp()
+    {
+        Controls.TryRemove(solidTransferArm, out _);
+        base.OnCleanUp();
+    }
+
+    private void NormalizeRanges()
+    {
+        var defaultRange = range > 0 ? range : solidTransferArm.pickupRange;
+        if (rangeX < 1)
         {
-            range = solidTransferArm.pickupRange;
+            rangeX = defaultRange;
+        }
+        if (rangeY < 1)
+        {
+            rangeY = defaultRange;
+        }
+        range = Math.Max(rangeX, rangeY);
+    }
+
+    private int GetRange(int axis)
+    {
+        return axis == 0 ? rangeX : rangeY;
+    }
+
+    private void SetRange(int axis, int value)
+    {
+        if (axis == 0)
+        {
+            rangeX = value;
         }
         else
         {
-            UpdateRange();
+            rangeY = value;
         }
+        UpdateRange();
     }
-
 
     private void UpdateRange()
     {
-        solidTransferArm.pickupRange = range;
-        Traverse.Create(solidTransferArm).Field<ChoreConsumer>("choreConsumer").Value.SetReach(range);
-        rangeVisualizer.RangeMin.x = -range;
-        rangeVisualizer.RangeMin.y = -range;
-        rangeVisualizer.RangeMax.x = range;
-        rangeVisualizer.RangeMax.y = range;
+        NormalizeRanges();
+        var maxRange = Math.Max(rangeX, rangeY);
+        solidTransferArm.pickupRange = maxRange;
+        Traverse.Create(solidTransferArm).Field<ChoreConsumer>("choreConsumer").Value.SetReach(maxRange);
+        rangeVisualizer.RangeMin.x = -rangeX;
+        rangeVisualizer.RangeMin.y = -rangeY;
+        rangeVisualizer.RangeMax.x = rangeX;
+        rangeVisualizer.RangeMax.y = rangeY;
         if (isCrossWall)
         {
             rangeVisualizer.BlockingCb = _ => false;
@@ -124,9 +148,66 @@ public class SolidTransferArmControl : KMonoBehaviour, IIntSliderControl, ICheck
     }
 
     [Serialize] public int range;
+    [Serialize] public int rangeX;
+    [Serialize] public int rangeY;
     [Serialize] public bool isCrossWall;
 
     [MyCmpReq] public SolidTransferArm solidTransferArm;
     [MyCmpReq] public RangeVisualizer rangeVisualizer;
     [MyCmpAdd] public CopyBuildingSettings copyBuildingSettings;
+
+    private class AxisSlider : ISliderControl
+    {
+        private readonly SolidTransferArmControl parent;
+        private readonly int axis;
+
+        public AxisSlider(SolidTransferArmControl parent, int axis)
+        {
+            this.parent = parent;
+            this.axis = axis;
+        }
+
+        public string SliderTitleKey => axis == 0
+            ? "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.XRANGETITLE"
+            : "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.YRANGETITLE";
+
+        public string SliderUnits => "";
+
+        public int SliderDecimalPlaces(int index)
+        {
+            return 0;
+        }
+
+        public float GetSliderMin(int index)
+        {
+            return 1;
+        }
+
+        public float GetSliderMax(int index)
+        {
+            return 32;
+        }
+
+        public float GetSliderValue(int index)
+        {
+            return parent.GetRange(axis);
+        }
+
+        public void SetSliderValue(float percent, int index)
+        {
+            parent.SetRange(axis, Convert.ToInt32(percent));
+        }
+
+        public string GetSliderTooltipKey(int index)
+        {
+            return axis == 0
+                ? "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.XRANGETOOLTIP"
+                : "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.YRANGETOOLTIP";
+        }
+
+        public string GetSliderTooltip(int index)
+        {
+            return Strings.Get(GetSliderTooltipKey(index));
+        }
+    }
 }

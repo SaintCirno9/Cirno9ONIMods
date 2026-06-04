@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+        <RootNamespace>AdjustableSolidTransferArm</RootNamespace>
+        <AssemblyName>AdjustableSolidTransferArm</AssemblyName>
+        <LangVersion>latest</LangVersion>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+        <GameManagedDir>C:\Games\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed\</GameManagedDir>
+        <ModOutputDir>$(USERPROFILE)\Documents\Klei\OxygenNotIncluded\mods\Dev\$(AssemblyName)</ModOutputDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ModMetadata Include="mod.yaml;mod_info.yaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="0Harmony" Private="False">
+            <HintPath>$(GameManagedDir)0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp" Private="False">
+            <HintPath>$(GameManagedDir)Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp-firstpass" Private="False">
+            <HintPath>$(GameManagedDir)Assembly-CSharp-firstpass.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <Target Name="CleanOutputDirectory" BeforeTargets="BeforeBuild">
+        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
+    </Target>
+
+    <Target Name="CopyMod" AfterTargets="Build">
+        <Copy SourceFiles="@(ModMetadata)" DestinationFolder="$(TargetDir)" />
+        <RemoveDir Directories="$(ModOutputDir)" Condition="Exists('$(ModOutputDir)')" />
+        <MakeDir Directories="$(ModOutputDir)" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModOutputDir)" />
+        <Copy SourceFiles="@(ModMetadata)" DestinationFolder="$(ModOutputDir)" />
+    </Target>
+</Project>
