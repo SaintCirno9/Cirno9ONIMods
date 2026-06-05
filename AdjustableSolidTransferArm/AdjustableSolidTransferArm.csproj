@@ -29,6 +29,9 @@
         <Reference Include="UnityEngine.CoreModule" Private="False">
             <HintPath>$(GameManagedDir)UnityEngine.CoreModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.InputLegacyModule.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <Target Name="CleanOutputDirectory" BeforeTargets="BeforeBuild">

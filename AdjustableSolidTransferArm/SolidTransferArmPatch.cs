@@ -61,6 +61,10 @@ namespace AdjustableSolidTransferArm
                 {
                     return false;
                 }
+                if (!SolidTransferArmControl.IgnoresNoPickZone(arm) && NoPickZone.ContainsCell(Grid.XYToCell(x2, y2)))
+                {
+                    return false;
+                }
                 return SolidTransferArmControl.IsCrossWallEnabled(arm) ||
                        Grid.IsPhysicallyAccessible(x, y, x2, y2, blockingTileVisible);
             }

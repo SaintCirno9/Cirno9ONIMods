@@ -18,16 +18,27 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
 
     public static bool IsCellInRange(SolidTransferArm arm, int originX, int originY, int targetX, int targetY)
     {
+        var offsetX = targetX - originX;
+        var offsetY = targetY - originY;
         return !Controls.TryGetValue(arm, out var control) ||
-               Math.Abs(targetX - originX) <= control.rangeX &&
-               Math.Abs(targetY - originY) <= control.rangeY;
+               offsetX >= -control.rangeLeft &&
+               offsetX <= control.rangeRight &&
+               offsetY >= -control.rangeDown &&
+               offsetY <= control.rangeUp;
+    }
+
+    public static bool IgnoresNoPickZone(SolidTransferArm arm)
+    {
+        return Controls.TryGetValue(arm, out var control) && control.ignoreNoPickZone;
     }
 
     public string SidescreenTitleKey => ControlTitleKey;
     public ISliderControl[] sliderControls => sliders ??= new ISliderControl[]
     {
-        new AxisSlider(this, 0),
-        new AxisSlider(this, 1)
+        new DirectionSlider(this, 0),
+        new DirectionSlider(this, 1),
+        new DirectionSlider(this, 2),
+        new DirectionSlider(this, 3)
     };
 
     public bool SidescreenEnabled()
@@ -68,16 +79,51 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
     {
         base.OnPrefabInit();
         Subscribe(-905833192, OnCopySettings);
+        Subscribe(493375141, OnRefreshUserMenu);
+    }
+
+    private void OnRefreshUserMenu(object data)
+    {
+        var button = ignoreNoPickZone
+            ? new KIconButtonMenu.ButtonInfo(
+                "action_move_to_storage",
+                Strings.Get("STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.USENOPICKZONEBUTTON"),
+                ToggleNoPickZoneIgnore,
+                global::Action.NumActions,
+                null,
+                null,
+                null,
+                Strings.Get("STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.USENOPICKZONEBUTTONTOOLTIP"))
+            : new KIconButtonMenu.ButtonInfo(
+                "action_move_to_storage",
+                Strings.Get("STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.IGNORENOPICKZONEBUTTON"),
+                ToggleNoPickZoneIgnore,
+                global::Action.NumActions,
+                null,
+                null,
+                null,
+                Strings.Get("STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.IGNORENOPICKZONEBUTTONTOOLTIP"));
+        Game.Instance.userMenu.AddButton(gameObject, button, 0.45f);
+    }
+
+    private void ToggleNoPickZoneIgnore()
+    {
+        ignoreNoPickZone = !ignoreNoPickZone;
     }
 
     private void OnCopySettings(object data)
     {
         if (data is not GameObject go || go.GetComponent<SolidTransferArmControl>() is not
                 { } sourceControl) return;
-        rangeX = sourceControl.rangeX;
-        rangeY = sourceControl.rangeY;
+        rangeLeft = sourceControl.rangeLeft;
+        rangeRight = sourceControl.rangeRight;
+        rangeDown = sourceControl.rangeDown;
+        rangeUp = sourceControl.rangeUp;
+        rangeX = Math.Max(rangeLeft, rangeRight);
+        rangeY = Math.Max(rangeDown, rangeUp);
         range = Math.Max(rangeX, rangeY);
         isCrossWall = sourceControl.isCrossWall;
+        ignoreNoPickZone = sourceControl.ignoreNoPickZone;
         UpdateRange();
     }
 
@@ -106,23 +152,54 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
         {
             rangeY = defaultRange;
         }
+        if (rangeLeft < 1)
+        {
+            rangeLeft = rangeX;
+        }
+        if (rangeRight < 1)
+        {
+            rangeRight = rangeX;
+        }
+        if (rangeDown < 1)
+        {
+            rangeDown = rangeY;
+        }
+        if (rangeUp < 1)
+        {
+            rangeUp = rangeY;
+        }
+        rangeX = Math.Max(rangeLeft, rangeRight);
+        rangeY = Math.Max(rangeDown, rangeUp);
         range = Math.Max(rangeX, rangeY);
     }
 
-    private int GetRange(int axis)
+    private int GetRange(int direction)
     {
-        return axis == 0 ? rangeX : rangeY;
+        return direction switch
+        {
+            0 => rangeLeft,
+            1 => rangeRight,
+            2 => rangeDown,
+            _ => rangeUp
+        };
     }
 
-    private void SetRange(int axis, int value)
+    private void SetRange(int direction, int value)
     {
-        if (axis == 0)
+        switch (direction)
         {
-            rangeX = value;
-        }
-        else
-        {
-            rangeY = value;
+            case 0:
+                rangeLeft = value;
+                break;
+            case 1:
+                rangeRight = value;
+                break;
+            case 2:
+                rangeDown = value;
+                break;
+            default:
+                rangeUp = value;
+                break;
         }
         UpdateRange();
     }
@@ -130,13 +207,13 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
     private void UpdateRange()
     {
         NormalizeRanges();
-        var maxRange = Math.Max(rangeX, rangeY);
+        var maxRange = Math.Max(Math.Max(rangeLeft, rangeRight), Math.Max(rangeDown, rangeUp));
         solidTransferArm.pickupRange = maxRange;
         Traverse.Create(solidTransferArm).Field<ChoreConsumer>("choreConsumer").Value.SetReach(maxRange);
-        rangeVisualizer.RangeMin.x = -rangeX;
-        rangeVisualizer.RangeMin.y = -rangeY;
-        rangeVisualizer.RangeMax.x = rangeX;
-        rangeVisualizer.RangeMax.y = rangeY;
+        rangeVisualizer.RangeMin.x = -rangeLeft;
+        rangeVisualizer.RangeMin.y = -rangeDown;
+        rangeVisualizer.RangeMax.x = rangeRight;
+        rangeVisualizer.RangeMax.y = rangeUp;
         if (isCrossWall)
         {
             rangeVisualizer.BlockingCb = _ => false;
@@ -150,26 +227,35 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
     [Serialize] public int range;
     [Serialize] public int rangeX;
     [Serialize] public int rangeY;
+    [Serialize] public int rangeLeft;
+    [Serialize] public int rangeRight;
+    [Serialize] public int rangeDown;
+    [Serialize] public int rangeUp;
     [Serialize] public bool isCrossWall;
+    [Serialize] public bool ignoreNoPickZone;
 
     [MyCmpReq] public SolidTransferArm solidTransferArm;
     [MyCmpReq] public RangeVisualizer rangeVisualizer;
     [MyCmpAdd] public CopyBuildingSettings copyBuildingSettings;
 
-    private class AxisSlider : ISliderControl
+    private class DirectionSlider : ISliderControl
     {
         private readonly SolidTransferArmControl parent;
-        private readonly int axis;
+        private readonly int direction;
 
-        public AxisSlider(SolidTransferArmControl parent, int axis)
+        public DirectionSlider(SolidTransferArmControl parent, int direction)
         {
             this.parent = parent;
-            this.axis = axis;
+            this.direction = direction;
         }
 
-        public string SliderTitleKey => axis == 0
-            ? "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.XRANGETITLE"
-            : "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.YRANGETITLE";
+        public string SliderTitleKey => direction switch
+        {
+            0 => "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.LEFTRANGETITLE",
+            1 => "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.RIGHTRANGETITLE",
+            2 => "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.DOWNRANGETITLE",
+            _ => "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.UPRANGETITLE"
+        };
 
         public string SliderUnits => "";
 
@@ -190,19 +276,23 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
 
         public float GetSliderValue(int index)
         {
-            return parent.GetRange(axis);
+            return parent.GetRange(direction);
         }
 
         public void SetSliderValue(float percent, int index)
         {
-            parent.SetRange(axis, Convert.ToInt32(percent));
+            parent.SetRange(direction, Convert.ToInt32(percent));
         }
 
         public string GetSliderTooltipKey(int index)
         {
-            return axis == 0
-                ? "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.XRANGETOOLTIP"
-                : "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.YRANGETOOLTIP";
+            return direction switch
+            {
+                0 => "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.LEFTRANGETOOLTIP",
+                1 => "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.RIGHTRANGETOOLTIP",
+                2 => "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.DOWNRANGETOOLTIP",
+                _ => "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.UPRANGETOOLTIP"
+            };
         }
 
         public string GetSliderTooltip(int index)
