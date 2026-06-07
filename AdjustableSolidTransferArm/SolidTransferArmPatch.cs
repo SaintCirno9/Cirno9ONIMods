@@ -23,6 +23,77 @@ namespace AdjustableSolidTransferArm
                 if (__instance.GetComponent<RangeVisualizer>() != null)
                 {
                     __instance.gameObject.AddOrGet<SolidTransferArmControl>();
+                    SolidTransferArmPickFilter.Configure(__instance.gameObject);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(SolidTransferArm), "FindFetchTarget")]
+        public class SolidTransferArmFindFetchTargetPatch
+        {
+            private static readonly MethodInfo FindFetchTargetMethod = AccessTools.Method(
+                typeof(FetchManager),
+                nameof(FetchManager.FindFetchTarget),
+                new[] { typeof(List<Pickupable>), typeof(Storage), typeof(FetchChore) });
+
+            private static readonly MethodInfo FilteredFindFetchTargetMethod = AccessTools.Method(
+                typeof(SolidTransferArmFindFetchTargetPatch),
+                nameof(FindFetchTarget));
+
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                foreach (var instruction in instructions)
+                {
+                    if (instruction.Calls(FindFetchTargetMethod))
+                    {
+                        yield return new CodeInstruction(OpCodes.Ldarg_0);
+                        yield return new CodeInstruction(OpCodes.Call, FilteredFindFetchTargetMethod);
+                    }
+                    else
+                    {
+                        yield return instruction;
+                    }
+                }
+            }
+
+            public static Pickupable FindFetchTarget(
+                List<Pickupable> pickupables,
+                Storage destination,
+                FetchChore chore,
+                SolidTransferArm arm)
+            {
+                foreach (var pickupable in pickupables)
+                {
+                    if (SolidTransferArmPickFilter.AllowsPickup(arm, pickupable) &&
+                        FetchManager.IsFetchablePickup(pickupable, chore, destination))
+                    {
+                        return pickupable;
+                    }
+                }
+                return null;
+            }
+        }
+
+        [HarmonyPatch(typeof(TreeFilterableSideScreen), "IsValidForTarget")]
+        public class TreeFilterableSideScreenIsValidForTargetPatch
+        {
+            public static void Postfix(GameObject target, ref bool __result)
+            {
+                if (__result && target.GetComponent<SolidTransferArmPickFilter>() is { } filter)
+                {
+                    __result = filter.ShouldShowFilterSideScreen();
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(SingleCheckboxSideScreen), "IsValidForTarget")]
+        public class SingleCheckboxSideScreenIsValidForTargetPatch
+        {
+            public static void Postfix(GameObject target, ref bool __result)
+            {
+                if (__result && target.GetComponent<SolidTransferArmControl>() is { } control)
+                {
+                    __result = control.SidescreenEnabled();
                 }
             }
         }

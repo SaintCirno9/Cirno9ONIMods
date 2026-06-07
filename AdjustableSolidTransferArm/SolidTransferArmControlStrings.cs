@@ -41,6 +41,12 @@ public static class SolidTransferArmControlStrings
                 public static LocString IGNORENOPICKZONEBUTTONTOOLTIP = "Make this auto-sweeper ignore no-pick zones.";
                 public static LocString USENOPICKZONEBUTTON = "Use No Pick Zone";
                 public static LocString USENOPICKZONEBUTTONTOOLTIP = "Make this auto-sweeper obey no-pick zones.";
+                public static LocString SHOWSETTINGSBUTTON = "Show Auto-Sweeper Settings";
+                public static LocString HIDESETTINGSBUTTON = "Hide Auto-Sweeper Settings";
+                public static LocString SHOWSETTINGSBUTTONTOOLTIP = "Show or hide range and wall-crossing settings.";
+                public static LocString SHOWFILTERBUTTON = "Show Pick Filter";
+                public static LocString HIDEFILTERBUTTON = "Hide Pick Filter";
+                public static LocString SHOWFILTERBUTTONTOOLTIP = "Show or hide this auto-sweeper's pick filter.";
             }
         }
 

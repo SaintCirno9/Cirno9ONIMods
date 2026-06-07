@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace AdjustableSolidTransferArm;
 
-public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, ICheckboxControl
+public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, ICheckboxControl, ISidescreenButtonControl
 {
     private static readonly ConcurrentDictionary<SolidTransferArm, SolidTransferArmControl> Controls = new();
     private ISliderControl[] sliders;
@@ -18,13 +18,8 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
 
     public static bool IsCellInRange(SolidTransferArm arm, int originX, int originY, int targetX, int targetY)
     {
-        var offsetX = targetX - originX;
-        var offsetY = targetY - originY;
         return !Controls.TryGetValue(arm, out var control) ||
-               offsetX >= -control.rangeLeft &&
-               offsetX <= control.rangeRight &&
-               offsetY >= -control.rangeDown &&
-               offsetY <= control.rangeUp;
+               control.IsLocalOffsetInRange(targetX - originX, targetY - originY);
     }
 
     public static bool IgnoresNoPickZone(SolidTransferArm arm)
@@ -43,7 +38,7 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
 
     public bool SidescreenEnabled()
     {
-        return true;
+        return enableSettingsSideScreen;
     }
 
     public string ControlTitleKey => "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.TITLE";
@@ -75,11 +70,52 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
         UpdateRange();
     }
 
+    public string SidescreenButtonText =>
+        Strings.Get(enableSettingsSideScreen
+            ? "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.HIDESETTINGSBUTTON"
+            : "STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.SHOWSETTINGSBUTTON");
+
+    public string SidescreenButtonTooltip =>
+        Strings.Get("STRINGS.UI.UISIDESCREENS.SOLIDTRANSFERARMCONTROLUISIDESCREEN.SHOWSETTINGSBUTTONTOOLTIP");
+
+    public string SidescreenTitle => SidescreenButtonText;
+
+    public void SetButtonTextOverride(ButtonMenuTextOverride textOverride)
+    {
+    }
+
+    bool ISidescreenButtonControl.SidescreenEnabled()
+    {
+        return true;
+    }
+
+    public bool SidescreenButtonInteractable()
+    {
+        return true;
+    }
+
+    public void OnSidescreenButtonPressed()
+    {
+        enableSettingsSideScreen = !enableSettingsSideScreen;
+        RefreshSelected();
+    }
+
+    public int HorizontalGroupID()
+    {
+        return -1;
+    }
+
+    public int ButtonSideScreenSortOrder()
+    {
+        return 1;
+    }
+
     protected override void OnPrefabInit()
     {
         base.OnPrefabInit();
         Subscribe(-905833192, OnCopySettings);
         Subscribe(493375141, OnRefreshUserMenu);
+        Subscribe(-1643076535, OnRotated);
     }
 
     private void OnRefreshUserMenu(object data)
@@ -109,6 +145,11 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
     private void ToggleNoPickZoneIgnore()
     {
         ignoreNoPickZone = !ignoreNoPickZone;
+    }
+
+    private void OnRotated(object data)
+    {
+        UpdateRange();
     }
 
     private void OnCopySettings(object data)
@@ -210,10 +251,7 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
         var maxRange = Math.Max(Math.Max(rangeLeft, rangeRight), Math.Max(rangeDown, rangeUp));
         solidTransferArm.pickupRange = maxRange;
         Traverse.Create(solidTransferArm).Field<ChoreConsumer>("choreConsumer").Value.SetReach(maxRange);
-        rangeVisualizer.RangeMin.x = -rangeLeft;
-        rangeVisualizer.RangeMin.y = -rangeDown;
-        rangeVisualizer.RangeMax.x = rangeRight;
-        rangeVisualizer.RangeMax.y = rangeUp;
+        UpdateRangeVisualizerBounds();
         if (isCrossWall)
         {
             rangeVisualizer.BlockingCb = _ => false;
@@ -222,6 +260,58 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
         {
             rangeVisualizer.BlockingCb = Grid.IsSolidCell;
         }
+    }
+
+    private bool IsLocalOffsetInRange(int worldOffsetX, int worldOffsetY)
+    {
+        var offset = ToLocalOffset(worldOffsetX, worldOffsetY);
+        return offset.x >= -rangeLeft &&
+               offset.x <= rangeRight &&
+               offset.y >= -rangeDown &&
+               offset.y <= rangeUp;
+    }
+
+    private Vector2I ToLocalOffset(int worldOffsetX, int worldOffsetY)
+    {
+        var orientation = rotatable == null ? Orientation.Neutral : rotatable.GetOrientation();
+        return orientation switch
+        {
+            Orientation.R90 => new Vector2I(-worldOffsetY, worldOffsetX),
+            Orientation.R180 => new Vector2I(-worldOffsetX, -worldOffsetY),
+            Orientation.R270 => new Vector2I(worldOffsetY, -worldOffsetX),
+            Orientation.FlipH => new Vector2I(-worldOffsetX, worldOffsetY),
+            Orientation.FlipV => new Vector2I(worldOffsetX, -worldOffsetY),
+            _ => new Vector2I(worldOffsetX, worldOffsetY)
+        };
+    }
+
+    private void UpdateRangeVisualizerBounds()
+    {
+        var corners = new[]
+        {
+            ToWorldOffset(-rangeLeft, -rangeDown),
+            ToWorldOffset(-rangeLeft, rangeUp),
+            ToWorldOffset(rangeRight, -rangeDown),
+            ToWorldOffset(rangeRight, rangeUp)
+        };
+        rangeVisualizer.RangeMin.x = Math.Min(Math.Min(corners[0].x, corners[1].x), Math.Min(corners[2].x, corners[3].x));
+        rangeVisualizer.RangeMin.y = Math.Min(Math.Min(corners[0].y, corners[1].y), Math.Min(corners[2].y, corners[3].y));
+        rangeVisualizer.RangeMax.x = Math.Max(Math.Max(corners[0].x, corners[1].x), Math.Max(corners[2].x, corners[3].x));
+        rangeVisualizer.RangeMax.y = Math.Max(Math.Max(corners[0].y, corners[1].y), Math.Max(corners[2].y, corners[3].y));
+    }
+
+    private Vector2I ToWorldOffset(int localOffsetX, int localOffsetY)
+    {
+        var orientation = rotatable == null ? Orientation.Neutral : rotatable.GetOrientation();
+        return orientation switch
+        {
+            Orientation.R90 => new Vector2I(localOffsetY, -localOffsetX),
+            Orientation.R180 => new Vector2I(-localOffsetX, -localOffsetY),
+            Orientation.R270 => new Vector2I(-localOffsetY, localOffsetX),
+            Orientation.FlipH => new Vector2I(-localOffsetX, localOffsetY),
+            Orientation.FlipV => new Vector2I(localOffsetX, -localOffsetY),
+            _ => new Vector2I(localOffsetX, localOffsetY)
+        };
     }
 
     [Serialize] public int range;
@@ -233,10 +323,22 @@ public class SolidTransferArmControl : KMonoBehaviour, IMultiSliderControl, IChe
     [Serialize] public int rangeUp;
     [Serialize] public bool isCrossWall;
     [Serialize] public bool ignoreNoPickZone;
+    [Serialize] public bool enableSettingsSideScreen;
 
     [MyCmpReq] public SolidTransferArm solidTransferArm;
     [MyCmpReq] public RangeVisualizer rangeVisualizer;
+    [MyCmpGet] public Rotatable rotatable;
     [MyCmpAdd] public CopyBuildingSettings copyBuildingSettings;
+
+    private void RefreshSelected()
+    {
+        var selectable = GetComponent<KSelectable>();
+        if (selectable != null && selectable.IsSelected)
+        {
+            SelectTool.Instance.Select(null, true);
+            SelectTool.Instance.Select(selectable, true);
+        }
+    }
 
     private class DirectionSlider : ISliderControl
     {
