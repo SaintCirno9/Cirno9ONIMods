@@ -1,0 +1,3 @@
+title: 'Resource Sensor'
+description: 'Outputs automation signal based on selected resource and count mode.'
+staticID: 'Rubacava.ResourceSensor'

@@ -1,0 +1,78 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+        <RootNamespace>ResourceSensor</RootNamespace>
+        <AssemblyName>ResourceSensor</AssemblyName>
+        <LangVersion>latest</LangVersion>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <GameManagedDir>C:\Games\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed\</GameManagedDir>
+        <ModOutputDir>$(USERPROFILE)\Documents\Klei\OxygenNotIncluded\mods\Dev\$(AssemblyName)</ModOutputDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ModRootFiles Include="mod.yaml;mod_info.yaml;preview.png" />
+        <ModAssetFiles Include="anim\**\*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="PLib" Version="4.24.0" />
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.45" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="0Harmony" Private="False">
+            <HintPath>$(GameManagedDir)0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp" Private="False">
+            <HintPath>$(GameManagedDir)Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp-firstpass" Private="False">
+            <HintPath>$(GameManagedDir)Assembly-CSharp-firstpass.dll</HintPath>
+        </Reference>
+        <Reference Include="Newtonsoft.Json" Private="False">
+            <HintPath>$(GameManagedDir)Newtonsoft.Json.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.TextMeshPro" Private="False">
+            <HintPath>$(GameManagedDir)Unity.TextMeshPro.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.ImageConversionModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.ImageConversionModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.InputLegacyModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.TextRenderingModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UI" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.UI.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UIModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.UIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UnityWebRequestModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.UnityWebRequestModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <Target Name="CleanOutputDirectory" BeforeTargets="BeforeBuild">
+        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
+    </Target>
+
+    <Target Name="CopyMod" AfterTargets="MergeResourceSensor">
+        <Copy SourceFiles="@(ModRootFiles)" DestinationFolder="$(TargetDir)" />
+        <Copy SourceFiles="@(ModAssetFiles)" DestinationFiles="@(ModAssetFiles->'$(TargetDir)anim\%(RecursiveDir)%(Filename)%(Extension)')" />
+        <RemoveDir Directories="$(ModOutputDir)" Condition="Exists('$(ModOutputDir)')" />
+        <MakeDir Directories="$(ModOutputDir)" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModOutputDir)" />
+        <Copy SourceFiles="@(ModRootFiles)" DestinationFolder="$(ModOutputDir)" />
+        <Copy SourceFiles="@(ModAssetFiles)" DestinationFiles="@(ModAssetFiles->'$(ModOutputDir)\anim\%(RecursiveDir)%(Filename)%(Extension)')" />
+    </Target>
+</Project>
