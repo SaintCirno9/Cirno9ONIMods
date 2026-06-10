@@ -1,0 +1,27 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Target Name="MergeZonedSolidTransferArm" AfterTargets="Build">
+        <PropertyGroup>
+            <MergedOutputDir>$(IntermediateOutputPath)merged\</MergedOutputDir>
+            <MergedOutputPath>$(MergedOutputDir)$(TargetFileName)</MergedOutputPath>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <InputAssemblies Include="$(TargetPath)" />
+            <InputAssemblies Include="$(TargetDir)PLib.dll" />
+            <LibraryPath Include="$(GameManagedDir)" />
+            <LibraryPath Include="$(TargetDir)" />
+        </ItemGroup>
+
+        <MakeDir Directories="$(MergedOutputDir)" />
+        <Delete Files="$(MergedOutputPath)" Condition="Exists('$(MergedOutputPath)')" />
+        <ILRepack
+            Parallel="true"
+            AllowDuplicateResources="false"
+            InputAssemblies="@(InputAssemblies)"
+            LibraryPath="@(LibraryPath)"
+            TargetKind="SameAsPrimaryAssembly"
+            OutputFile="$(MergedOutputPath)" />
+        <Delete Files="$(TargetPath)" />
+        <Move SourceFiles="$(MergedOutputPath)" DestinationFiles="$(TargetPath)" />
+    </Target>
+</Project>
