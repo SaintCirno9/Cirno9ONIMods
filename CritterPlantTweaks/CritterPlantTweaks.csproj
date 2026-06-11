@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net48</TargetFramework>
-        <RootNamespace>BuildingAdjust</RootNamespace>
-        <AssemblyName>BuildingAdjust</AssemblyName>
-        <LangVersion>10.0</LangVersion>
+        <RootNamespace>CritterPlantTweaks</RootNamespace>
+        <AssemblyName>CritterPlantTweaks</AssemblyName>
+        <LangVersion>latest</LangVersion>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <DebugType>none</DebugType>
@@ -14,11 +14,6 @@
 
     <ItemGroup>
         <ModMetadata Include="mod.yaml;mod_info.yaml" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Remove="**\*.cs" />
-        <Compile Include="ModEntry.cs;PumpPatch.cs;ElementConsumerControl.cs;StoragePatch.cs;DoorPatch.cs;RonivansFridgePatch.cs;PowerTinkerPatch.cs;BuildingStationPatch.cs;STRINGS\UI.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -33,6 +28,9 @@
         </Reference>
         <Reference Include="UnityEngine.CoreModule" Private="False">
             <HintPath>$(GameManagedDir)UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.InputLegacyModule.dll</HintPath>
         </Reference>
     </ItemGroup>
 

@@ -17,6 +17,8 @@ public class ModEntry : UserMod2
         // - StoragePatch：补充储物过滤标签，并密封默认储物。
         // - DoorPatch：让所有带 Door 组件的门以三倍速度开关，包含 mod 门。
         // - RonivansFridgePatch：把工业革命冷藏建筑的食物储存容量提高到一百倍。
+        // - PowerTinkerPatch：发电机不工作时暂停工程师调校效果计时。
+        // - BuildingStationPatch：迁移动植物调整里的建筑/站点相关增强。
         //
         // 已禁用功能清单：
         // - BatchBuildingPatch：批量关闭建筑淹没判定、提高过热温度、调整导热、允许部分建筑建在任意位置，并触发其他批量建筑调整。
