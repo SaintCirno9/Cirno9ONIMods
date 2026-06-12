@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+        <RootNamespace>StatsUnlimitedSO</RootNamespace>
+        <AssemblyName>StatsUnlimited</AssemblyName>
+        <LangVersion>10.0</LangVersion>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+        <EnableStatsUnlimitedMinimal>true</EnableStatsUnlimitedMinimal>
+        <GameManagedDir>C:\Games\Steam\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed\</GameManagedDir>
+        <ModOutputDir>$(USERPROFILE)\Documents\Klei\OxygenNotIncluded\mods\Dev\$(AssemblyName)</ModOutputDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ModMetadata Include="mod.yaml;mod_info.yaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="PLib" Version="4.24.0" />
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.45" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(EnableStatsUnlimitedMinimal)' == 'true'">
+        <Compile Remove="**/*.cs" />
+        <Compile Include="ModEntry.cs;ModConfig.cs;SkillPointExperiencePatch.cs;AttributeExperiencePatch.cs;ExperienceCatchUpMultiplier.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="0Harmony" Private="False">
+            <HintPath>$(GameManagedDir)0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp" Private="False">
+            <HintPath>$(GameManagedDir)Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp-firstpass" Private="False">
+            <HintPath>$(GameManagedDir)Assembly-CSharp-firstpass.dll</HintPath>
+        </Reference>
+        <Reference Include="Newtonsoft.Json" Private="False">
+            <HintPath>$(GameManagedDir)Newtonsoft.Json.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <Target Name="CleanOutputDirectory" BeforeTargets="BeforeBuild">
+        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
+    </Target>
+
+    <Target Name="CopyMod" AfterTargets="MergeStatsUnlimited">
+        <Copy SourceFiles="@(ModMetadata)" DestinationFolder="$(TargetDir)" />
+        <RemoveDir Directories="$(ModOutputDir)" Condition="Exists('$(ModOutputDir)')" />
+        <MakeDir Directories="$(ModOutputDir)" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModOutputDir)" />
+        <Copy SourceFiles="@(ModMetadata)" DestinationFolder="$(ModOutputDir)" />
+    </Target>
+</Project>
