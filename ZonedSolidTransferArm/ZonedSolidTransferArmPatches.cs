@@ -458,6 +458,7 @@ public static class ZonedSolidTransferArmPatches
         private static readonly FieldInfo LastSuccessfulPreconditionSnapshotField =
             AccessTools.Field(typeof(ChoreConsumer), "lastSuccessfulPreconditionSnapshot");
         private static readonly MethodInfo ChooseChoreMethod = AccessTools.Method(typeof(ChoreConsumer), "ChooseChore");
+        private const int ScenePartitionerNodeSize = 16;
 
         public static bool Prefix(ChoreConsumer __instance, ref Chore.Precondition.Context out_context, ref bool __result)
         {
@@ -505,10 +506,7 @@ public static class ZonedSolidTransferArmPatches
 
         private static void VisitFetchChoresInZoneBounds(ChoreConsumer consumer, HashSet<int> zoneCells)
         {
-            int minX = int.MaxValue;
-            int minY = int.MaxValue;
-            int maxX = int.MinValue;
-            int maxY = int.MinValue;
+            HashSet<int> visitedNodes = new();
             foreach (int cell in zoneCells)
             {
                 if (!Grid.IsValidCell(cell))
@@ -517,25 +515,23 @@ public static class ZonedSolidTransferArmPatches
                 }
 
                 Grid.CellToXY(cell, out int x, out int y);
-                minX = Math.Min(minX, x);
-                minY = Math.Min(minY, y);
-                maxX = Math.Max(maxX, x);
-                maxY = Math.Max(maxY, y);
-            }
+                int nodeX = x / ScenePartitionerNodeSize;
+                int nodeY = y / ScenePartitionerNodeSize;
+                int nodeKey = nodeY * Grid.WidthInCells + nodeX;
+                if (!visitedNodes.Add(nodeKey))
+                {
+                    continue;
+                }
 
-            if (minX == int.MaxValue)
-            {
-                return;
+                GameScenePartitioner.Instance.VisitEntries(
+                    nodeX * ScenePartitionerNodeSize,
+                    nodeY * ScenePartitionerNodeSize,
+                    ScenePartitionerNodeSize,
+                    ScenePartitionerNodeSize,
+                    GameScenePartitioner.Instance.fetchChoreLayer,
+                    VisitFetchChore,
+                    consumer);
             }
-
-            GameScenePartitioner.Instance.VisitEntries(
-                minX,
-                minY,
-                maxX - minX + 1,
-                maxY - minY + 1,
-                GameScenePartitioner.Instance.fetchChoreLayer,
-                VisitFetchChore,
-                consumer);
         }
 
         private static Util.IterationInstruction VisitFetchChore(object obj, ChoreConsumer consumer)
