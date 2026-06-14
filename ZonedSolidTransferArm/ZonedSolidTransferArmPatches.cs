@@ -9,6 +9,86 @@ namespace ZonedSolidTransferArm;
 
 public static class ZonedSolidTransferArmPatches
 {
+    private const float FetchChoreCacheDuration = 0.5f;
+    private static readonly Dictionary<SolidTransferArm, CachedFetchChores> CachedFetchChoresByArm = new();
+    private static readonly Dictionary<SolidTransferArm, PickupableAvailability> PickupableAvailabilityByArm = new();
+
+    private sealed class CachedFetchChores
+    {
+        public HashSet<int> ZoneCells;
+        public int ZoneCellCount;
+        public float NextRefreshTime;
+        public readonly List<FetchChore> FetchChores = new();
+        public readonly HashSet<FetchChore> SeenFetchChores = new();
+    }
+
+    private sealed class PickupableAvailability
+    {
+        public readonly HashSet<Tag> PrefabTags = new();
+        public bool HasGarbage;
+
+        public void Rebuild(List<Pickupable> pickupables)
+        {
+            PrefabTags.Clear();
+            HasGarbage = false;
+            foreach (Pickupable pickupable in pickupables)
+            {
+                if (pickupable?.KPrefabID == null)
+                {
+                    continue;
+                }
+
+                PrefabTags.Add(pickupable.KPrefabID.PrefabTag);
+                if (!HasGarbage && pickupable.KPrefabID.HasTag(GameTags.Garbage))
+                {
+                    HasGarbage = true;
+                }
+            }
+        }
+    }
+
+    private sealed class FetchChoreCacheBuildContext
+    {
+        public readonly SolidTransferArm Arm;
+        public readonly HashSet<int> ZoneCells;
+        public readonly List<FetchChore> FetchChores;
+        public readonly HashSet<FetchChore> SeenFetchChores;
+
+        public FetchChoreCacheBuildContext(
+            SolidTransferArm arm,
+            HashSet<int> zoneCells,
+            List<FetchChore> fetchChores,
+            HashSet<FetchChore> seenFetchChores)
+        {
+            Arm = arm;
+            ZoneCells = zoneCells;
+            FetchChores = fetchChores;
+            SeenFetchChores = seenFetchChores;
+        }
+    }
+
+    private static CachedFetchChores GetCachedFetchChores(SolidTransferArm arm)
+    {
+        if (!CachedFetchChoresByArm.TryGetValue(arm, out CachedFetchChores cachedFetchChores))
+        {
+            cachedFetchChores = new CachedFetchChores();
+            CachedFetchChoresByArm[arm] = cachedFetchChores;
+        }
+
+        return cachedFetchChores;
+    }
+
+    private static PickupableAvailability GetPickupableAvailability(SolidTransferArm arm)
+    {
+        if (!PickupableAvailabilityByArm.TryGetValue(arm, out PickupableAvailability pickupableAvailability))
+        {
+            pickupableAvailability = new PickupableAvailability();
+            PickupableAvailabilityByArm[arm] = pickupableAvailability;
+        }
+
+        return pickupableAvailability;
+    }
+
     [HarmonyPatch(typeof(PlayerController), "OnPrefabInit")]
     public static class PlayerControllerOnPrefabInitPatch
     {
@@ -117,6 +197,16 @@ public static class ZonedSolidTransferArmPatches
                 ZonedSolidTransferArmPickFilter.Configure(__instance.gameObject);
                 __instance.gameObject.AddOrGet<ZonedSolidTransferArmTemperatureFilter>();
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(SolidTransferArm), "OnCleanUp")]
+    public static class SolidTransferArmOnCleanUpPatch
+    {
+        public static void Prefix(SolidTransferArm __instance)
+        {
+            CachedFetchChoresByArm.Remove(__instance);
+            PickupableAvailabilityByArm.Remove(__instance);
         }
     }
 
@@ -302,6 +392,7 @@ public static class ZonedSolidTransferArmPatches
     [HarmonyPatch(typeof(SolidTransferArm), "AsyncUpdate")]
     public static class SolidTransferArmAsyncUpdatePatch
     {
+        private const int ScenePartitionerNodeSize = 16;
         private static readonly FieldInfo ReachableCellsField = AccessTools.Field(typeof(SolidTransferArm), "reachableCells");
         private static readonly FieldInfo PickupablesField = AccessTools.Field(typeof(SolidTransferArm), "pickupables");
         private static readonly FieldInfo KPrefabIDField = AccessTools.Field(typeof(SolidTransferArm), "kPrefabID");
@@ -333,6 +424,8 @@ public static class ZonedSolidTransferArmPatches
                 VisitPickupablesInZoneCells(arm, zoneCells, pickupables);
             }
 
+            GetPickupableAvailability(arm).Rebuild(pickupables);
+
             oldReachable.Recycle();
             return true;
         }
@@ -344,6 +437,7 @@ public static class ZonedSolidTransferArmPatches
                 (KPrefabID)KPrefabIDField.GetValue(arm),
                 reachableCells,
                 pickupables);
+            HashSet<int> visitedNodes = new();
             foreach (int cell in reachableCells)
             {
                 if (!Grid.IsValidCell(cell))
@@ -352,19 +446,27 @@ public static class ZonedSolidTransferArmPatches
                 }
 
                 Grid.CellToXY(cell, out int x, out int y);
+                int nodeX = x / ScenePartitionerNodeSize;
+                int nodeY = y / ScenePartitionerNodeSize;
+                int nodeKey = nodeY * Grid.WidthInCells + nodeX;
+                if (!visitedNodes.Add(nodeKey))
+                {
+                    continue;
+                }
+
                 GameScenePartitioner.Instance.ReadonlyVisitEntries(
-                    x,
-                    y,
-                    1,
-                    1,
+                    nodeX * ScenePartitionerNodeSize,
+                    nodeY * ScenePartitionerNodeSize,
+                    ScenePartitionerNodeSize,
+                    ScenePartitionerNodeSize,
                     GameScenePartitioner.Instance.pickupablesLayer,
                     VisitPickupable,
                     context);
                 GameScenePartitioner.Instance.ReadonlyVisitEntries(
-                    x,
-                    y,
-                    1,
-                    1,
+                    nodeX * ScenePartitionerNodeSize,
+                    nodeY * ScenePartitionerNodeSize,
+                    ScenePartitionerNodeSize,
+                    ScenePartitionerNodeSize,
                     GameScenePartitioner.Instance.storedPickupablesLayer,
                     VisitPickupable,
                     context);
@@ -491,7 +593,10 @@ public static class ZonedSolidTransferArmPatches
 
             if (zoneCells.Count > 0)
             {
-                VisitFetchChoresInZoneBounds(consumer, zoneCells);
+                foreach (FetchChore fetchChore in GetFetchChoresInZone(consumer.consumerState.solidTransferArm, zoneCells))
+                {
+                    VisitFetchChore(fetchChore, consumer);
+                }
             }
 
             preconditionSnapshot.succeededContexts.Sort();
@@ -507,9 +612,36 @@ public static class ZonedSolidTransferArmPatches
             return found;
         }
 
-        private static void VisitFetchChoresInZoneBounds(ChoreConsumer consumer, HashSet<int> zoneCells)
+        private static IEnumerable<FetchChore> GetFetchChoresInZone(SolidTransferArm arm, HashSet<int> zoneCells)
         {
+            CachedFetchChores cachedFetchChores = GetCachedFetchChores(arm);
+            float currentGameTime = GameClock.Instance?.GetTime() ?? 0f;
+            bool needsRefresh = cachedFetchChores.ZoneCells != zoneCells ||
+                cachedFetchChores.ZoneCellCount != zoneCells.Count ||
+                currentGameTime >= cachedFetchChores.NextRefreshTime;
+            if (needsRefresh)
+            {
+                RebuildFetchChoreCache(arm, zoneCells, cachedFetchChores, currentGameTime);
+            }
+
+            return cachedFetchChores.FetchChores;
+        }
+
+        private static void RebuildFetchChoreCache(
+            SolidTransferArm arm,
+            HashSet<int> zoneCells,
+            CachedFetchChores cachedFetchChores,
+            float currentGameTime)
+        {
+            cachedFetchChores.FetchChores.Clear();
+            cachedFetchChores.SeenFetchChores.Clear();
+
             HashSet<int> visitedNodes = new();
+            FetchChoreCacheBuildContext context = new(
+                arm,
+                zoneCells,
+                cachedFetchChores.FetchChores,
+                cachedFetchChores.SeenFetchChores);
             foreach (int cell in zoneCells)
             {
                 if (!Grid.IsValidCell(cell))
@@ -532,34 +664,78 @@ public static class ZonedSolidTransferArmPatches
                     ScenePartitionerNodeSize,
                     ScenePartitionerNodeSize,
                     GameScenePartitioner.Instance.fetchChoreLayer,
-                    VisitFetchChore,
-                    consumer);
+                    VisitFetchChoreCacheBuilder,
+                    context);
             }
+
+            cachedFetchChores.ZoneCells = zoneCells;
+            cachedFetchChores.ZoneCellCount = zoneCells.Count;
+            cachedFetchChores.NextRefreshTime = currentGameTime + FetchChoreCacheDuration;
         }
 
-        private static Util.IterationInstruction VisitFetchChore(object obj, ChoreConsumer consumer)
+        private static Util.IterationInstruction VisitFetchChoreCacheBuilder(object obj, FetchChoreCacheBuildContext context)
         {
-            if (obj is not FetchChore fetchChore)
-            {
-                return Util.IterationInstruction.Continue;
-            }
-            if (fetchChore.target == null || fetchChore.isNull)
+            if (obj is not FetchChore fetchChore || fetchChore.target == null || fetchChore.isNull)
             {
                 return Util.IterationInstruction.Continue;
             }
 
             int cell = Grid.PosToCell(fetchChore.gameObject);
-            if (ZonedSolidTransferArmControl.IsCellAllowed(consumer.consumerState.solidTransferArm, cell))
+            if (context.ZoneCells.Contains(cell) && context.SeenFetchChores.Add(fetchChore))
             {
-                ChoreConsumer.PreconditionSnapshot preconditionSnapshot =
-                    (ChoreConsumer.PreconditionSnapshot)PreconditionSnapshotField.GetValue(consumer);
-                fetchChore.CollectChoresFromGlobalChoreProvider(
-                    consumer.consumerState,
-                    preconditionSnapshot.succeededContexts,
-                    preconditionSnapshot.failedContexts,
-                    false);
+                context.FetchChores.Add(fetchChore);
             }
+
             return Util.IterationInstruction.Continue;
+        }
+
+        private static void VisitFetchChore(FetchChore fetchChore, ChoreConsumer consumer)
+        {
+            if (fetchChore.target == null || fetchChore.isNull)
+            {
+                return;
+            }
+
+            if (!ShouldEvaluateFetchChore(consumer.consumerState.solidTransferArm, fetchChore))
+            {
+                return;
+            }
+
+            ChoreConsumer.PreconditionSnapshot preconditionSnapshot =
+                (ChoreConsumer.PreconditionSnapshot)PreconditionSnapshotField.GetValue(consumer);
+            fetchChore.CollectChoresFromGlobalChoreProvider(
+                consumer.consumerState,
+                preconditionSnapshot.succeededContexts,
+                preconditionSnapshot.failedContexts,
+                false);
+        }
+
+        private static bool ShouldEvaluateFetchChore(SolidTransferArm arm, FetchChore fetchChore)
+        {
+            if (!PickupableAvailabilityByArm.TryGetValue(arm, out PickupableAvailability pickupableAvailability))
+            {
+                return true;
+            }
+
+            if (fetchChore.requiredTag == GameTags.Garbage && !pickupableAvailability.HasGarbage)
+            {
+                return false;
+            }
+
+            if (fetchChore.criteria != FetchChore.MatchCriteria.MatchID)
+            {
+                return true;
+            }
+
+            foreach (Tag tag in fetchChore.tags)
+            {
+                if (pickupableAvailability.PrefabTags.Contains(tag))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
