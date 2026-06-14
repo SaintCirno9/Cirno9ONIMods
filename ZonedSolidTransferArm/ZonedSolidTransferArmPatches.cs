@@ -115,6 +115,7 @@ public static class ZonedSolidTransferArmPatches
             {
                 __instance.gameObject.AddOrGet<ZonedSolidTransferArmControl>();
                 ZonedSolidTransferArmPickFilter.Configure(__instance.gameObject);
+                __instance.gameObject.AddOrGet<ZonedSolidTransferArmTemperatureFilter>();
             }
         }
     }
@@ -219,6 +220,7 @@ public static class ZonedSolidTransferArmPatches
             foreach (Pickupable pickupable in pickupables)
             {
                 if (ZonedSolidTransferArmPickFilter.AllowsPickup(arm, pickupable) &&
+                    ZonedSolidTransferArmTemperatureFilter.AllowsPickup(arm, pickupable) &&
                     FetchManager.IsFetchablePickup(pickupable, chore, destination))
                 {
                     return pickupable;
@@ -380,7 +382,8 @@ public static class ZonedSolidTransferArmPatches
             bool conveyable = Assets.IsTagSolidTransferArmConveyable(pickupable.KPrefabID.PrefabTag);
             bool canTransfer = CanBePickedUpByZonedTransferArm(pickupable, context.KPrefabID.InstanceID);
             bool allowedByFilter = ZonedSolidTransferArmPickFilter.AllowsPickup(context.Arm, pickupable);
-            if (inZone && conveyable && canTransfer && allowedByFilter)
+            bool allowedByTemperature = ZonedSolidTransferArmTemperatureFilter.AllowsPickup(context.Arm, pickupable);
+            if (inZone && conveyable && canTransfer && allowedByFilter && allowedByTemperature)
             {
                 if (context.Seen.Add(pickupable))
                 {

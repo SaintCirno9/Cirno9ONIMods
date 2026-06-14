@@ -3,4 +3,3 @@ requiredDlcIds:
 forbiddenDlcIds:
 minimumSupportedBuild: 469369
 version: "1.0.0"
-author: "SaintCirno9"

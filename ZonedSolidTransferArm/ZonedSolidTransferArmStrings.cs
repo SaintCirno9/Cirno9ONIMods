@@ -20,6 +20,15 @@ public static class ZonedSolidTransferArmStrings
                 public static LocString ENABLEFILTERBUTTONTOOLTIP = "让此自动清扫器只拾取过滤器允许的物品。";
                 public static LocString DISABLEFILTERBUTTON = "关闭过滤器";
                 public static LocString DISABLEFILTERBUTTONTOOLTIP = "关闭此自动清扫器的物品过滤器，恢复默认拾取。";
+                public static LocString ENABLETEMPERATUREFILTERBUTTON = "启用温度过滤器";
+                public static LocString ENABLETEMPERATUREFILTERBUTTONTOOLTIP = "让此自动清扫器只拾取指定温度范围内的物品。";
+                public static LocString DISABLETEMPERATUREFILTERBUTTON = "关闭温度过滤器";
+                public static LocString DISABLETEMPERATUREFILTERBUTTONTOOLTIP = "关闭此自动清扫器的温度过滤器，恢复默认拾取。";
+                public static LocString TEMPERATUREFILTERTITLE = "温度过滤器";
+                public static LocString MINTEMPERATURELABEL = "最低温度";
+                public static LocString MINTEMPERATURETOOLTIP = "允许拾取的最低物品温度。";
+                public static LocString MAXTEMPERATURELABEL = "最高温度";
+                public static LocString MAXTEMPERATURETOOLTIP = "允许拾取的最高物品温度。";
                 public static LocString ADDGLOBALZONEBUTTON = "加入全局区域";
                 public static LocString ADDGLOBALZONEBUTTONTOOLTIP = "把此建筑占用的格子加入所有区域模式自动清扫器共享的工作区域。";
                 public static LocString REMOVEGLOBALZONEBUTTON = "移出全局区域";
@@ -43,6 +52,10 @@ public static class ZonedSolidTransferArmStrings
                 public static LocString ADDTOOLTIP = "向所有区域模式自动清扫器共享的工作区域添加格子。";
                 public static LocString REMOVENAME = "删除全局区域";
                 public static LocString REMOVETOOLTIP = "从所有区域模式自动清扫器共享的工作区域删除格子。";
+                public static LocString TEMPORARYCONSTRUCTIONNAME = "自动加入待建区域";
+                public static LocString TEMPORARYCONSTRUCTIONTOOLTIP = "放置建筑虚影时，自动把待建区域临时加入全局清扫器区域。";
+                public static LocString TEMPORARYCLEARNAME = "自动加入清扫区域";
+                public static LocString TEMPORARYCLEARTOOLTIP = "标记清扫物品时，自动把物品所在格临时加入全局清扫器区域。";
             }
         }
 

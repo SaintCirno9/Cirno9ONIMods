@@ -38,6 +38,8 @@ public static class ZonedSolidTransferArmGlobalZone
     private static readonly ConcurrentDictionary<int, byte> Cells = new();
     private static readonly ConcurrentDictionary<int, TemporaryZoneCell> TemporaryCells = new();
     private static readonly FieldInfo ConstructableFetchListField = AccessTools.Field(typeof(Constructable), "fetchList");
+    private static bool temporaryConstructionZonesEnabled = true;
+    private static bool temporaryClearZonesEnabled = true;
     private static bool temporarySyncScheduled;
 
     public static IEnumerable<int> MarkedCells
@@ -56,6 +58,10 @@ public static class ZonedSolidTransferArmGlobalZone
     }
 
     public static int CellCount => Cells.Count + TemporaryCells.Count;
+
+    public static bool TemporaryConstructionZonesEnabled => temporaryConstructionZonesEnabled;
+
+    public static bool TemporaryClearZonesEnabled => temporaryClearZonesEnabled;
 
     public static bool ContainsCell(int cell)
     {
@@ -118,17 +124,39 @@ public static class ZonedSolidTransferArmGlobalZone
     {
         Cells.Clear();
         TemporaryCells.Clear();
+        temporaryConstructionZonesEnabled = true;
+        temporaryClearZonesEnabled = true;
         temporarySyncScheduled = false;
     }
 
     public static void AddTemporaryConstructionCells(IEnumerable<int> cells)
     {
+        if (!temporaryConstructionZonesEnabled)
+        {
+            return;
+        }
+
         AddTemporaryCells(cells, TemporaryZoneSource.Construction, TemporaryConstructionZoneDuration);
     }
 
     public static void AddTemporaryClearCell(int cell)
     {
+        if (!temporaryClearZonesEnabled)
+        {
+            return;
+        }
+
         AddTemporaryCells(new[] { cell }, TemporaryZoneSource.Clear, TemporaryClearZoneDuration);
+    }
+
+    public static void SetTemporaryConstructionZonesEnabled(bool enabled)
+    {
+        temporaryConstructionZonesEnabled = enabled;
+    }
+
+    public static void SetTemporaryClearZonesEnabled(bool enabled)
+    {
+        temporaryClearZonesEnabled = enabled;
     }
 
     private static void AddTemporaryCells(IEnumerable<int> cells, TemporaryZoneSource source, float duration)
@@ -363,6 +391,10 @@ public class ZonedSolidTransferArmGlobalZoneSaveData : KMonoBehaviour, ISaveLoad
     private string globalZoneCells = "";
     [Serialize]
     private string temporaryGlobalZoneCells = "";
+    [Serialize]
+    private bool temporaryConstructionZonesEnabled = true;
+    [Serialize]
+    private bool temporaryClearZonesEnabled = true;
     private SchedulerHandle cleanupHandle;
 
     [OnSerializing]
@@ -370,6 +402,8 @@ public class ZonedSolidTransferArmGlobalZoneSaveData : KMonoBehaviour, ISaveLoad
     {
         globalZoneCells = ZonedSolidTransferArmGlobalZone.Serialize();
         temporaryGlobalZoneCells = ZonedSolidTransferArmGlobalZone.SerializeTemporary();
+        temporaryConstructionZonesEnabled = ZonedSolidTransferArmGlobalZone.TemporaryConstructionZonesEnabled;
+        temporaryClearZonesEnabled = ZonedSolidTransferArmGlobalZone.TemporaryClearZonesEnabled;
     }
 
     [OnDeserialized]
@@ -377,6 +411,8 @@ public class ZonedSolidTransferArmGlobalZoneSaveData : KMonoBehaviour, ISaveLoad
     {
         ZonedSolidTransferArmGlobalZone.Load(globalZoneCells);
         ZonedSolidTransferArmGlobalZone.LoadTemporary(temporaryGlobalZoneCells);
+        ZonedSolidTransferArmGlobalZone.SetTemporaryConstructionZonesEnabled(temporaryConstructionZonesEnabled);
+        ZonedSolidTransferArmGlobalZone.SetTemporaryClearZonesEnabled(temporaryClearZonesEnabled);
     }
 
     protected override void OnSpawn()
@@ -459,9 +495,13 @@ public class ZonedSolidTransferArmGlobalZoneTool : DragTool
     private static EditMode mode;
     private const string AddParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_ADD";
     private const string RemoveParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_REMOVE";
+    private const string TemporaryConstructionParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_TEMPORARY_CONSTRUCTION";
+    private const string TemporaryClearParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_TEMPORARY_CLEAR";
     private static readonly Color RemoveZoneColor = new(1f, 0.08f, 0.05f, 0.9f);
     private ToolParameterMenu.ToggleData addParameter;
     private ToolParameterMenu.ToggleData removeParameter;
+    private ToolParameterMenu.ToggleData temporaryConstructionParameter;
+    private ToolParameterMenu.ToggleData temporaryClearParameter;
 
     public static void SetEditMode(EditMode editMode)
     {
@@ -591,13 +631,40 @@ public class ZonedSolidTransferArmGlobalZoneTool : DragTool
         removeParameter = new ToolParameterMenu.ToggleData(
             RemoveParameter,
             mode == EditMode.Remove ? ToolParameterMenu.ToggleState.On : ToolParameterMenu.ToggleState.Off);
+            temporaryConstructionParameter = new ToolParameterMenu.ToggleData(
+                TemporaryConstructionParameter,
+                ZonedSolidTransferArmGlobalZone.TemporaryConstructionZonesEnabled
+                    ? ToolParameterMenu.ToggleState.On
+                    : ToolParameterMenu.ToggleState.Off,
+                true);
+            temporaryClearParameter = new ToolParameterMenu.ToggleData(
+                TemporaryClearParameter,
+                ZonedSolidTransferArmGlobalZone.TemporaryClearZonesEnabled
+                    ? ToolParameterMenu.ToggleState.On
+                    : ToolParameterMenu.ToggleState.Off,
+                true);
         menu.onParametersChanged -= OnParametersChanged;
-        menu.PopulateMenu(new[] { addParameter, removeParameter });
+        menu.PopulateMenu(new[]
+        {
+            addParameter,
+            removeParameter,
+            temporaryConstructionParameter,
+            temporaryClearParameter
+        });
         menu.onParametersChanged += OnParametersChanged;
     }
 
     private void OnParametersChanged()
     {
+        if (temporaryConstructionParameter != null)
+        {
+            ZonedSolidTransferArmGlobalZone.SetTemporaryConstructionZonesEnabled(temporaryConstructionParameter.IsOn);
+        }
+        if (temporaryClearParameter != null)
+        {
+            ZonedSolidTransferArmGlobalZone.SetTemporaryClearZonesEnabled(temporaryClearParameter.IsOn);
+        }
+
         if (removeParameter is { IsOn: true })
         {
             SetEditMode(EditMode.Remove);
