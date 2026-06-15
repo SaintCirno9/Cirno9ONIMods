@@ -2,37 +2,46 @@ namespace ZonedSolidTransferArm;
 
 public static class ZonedSolidTransferArmStrings
 {
+    public static string Text(LocString value)
+    {
+        return value.text;
+    }
+
     public static class UI
     {
         public static class UISIDESCREENS
         {
             public static class ZONEDSOLIDTRANSFERARMCONTROL
             {
-                public static LocString ENABLEZONEBUTTON = "启用区域模式";
-                public static LocString ENABLEZONEBUTTONTOOLTIP = "让此自动清扫器只在指定区域内拾取物品。";
-                public static LocString DISABLEZONEBUTTON = "停用区域模式";
-                public static LocString DISABLEZONEBUTTONTOOLTIP = "停用此自动清扫器的区域限制，恢复原本的拾取逻辑。";
-                public static LocString ADDZONEBUTTON = "添加区域";
-                public static LocString ADDZONEBUTTONTOOLTIP = "为此自动清扫器添加允许拾取物品的区域。";
-                public static LocString REMOVEZONEBUTTON = "删除区域";
-                public static LocString REMOVEZONEBUTTONTOOLTIP = "从此自动清扫器的工作区域中删除格子。";
-                public static LocString ENABLEFILTERBUTTON = "启用过滤器";
-                public static LocString ENABLEFILTERBUTTONTOOLTIP = "让此自动清扫器只拾取过滤器允许的物品。";
-                public static LocString DISABLEFILTERBUTTON = "关闭过滤器";
-                public static LocString DISABLEFILTERBUTTONTOOLTIP = "关闭此自动清扫器的物品过滤器，恢复默认拾取。";
-                public static LocString ENABLETEMPERATUREFILTERBUTTON = "启用温度过滤器";
-                public static LocString ENABLETEMPERATUREFILTERBUTTONTOOLTIP = "让此自动清扫器只拾取指定温度范围内的物品。";
-                public static LocString DISABLETEMPERATUREFILTERBUTTON = "关闭温度过滤器";
-                public static LocString DISABLETEMPERATUREFILTERBUTTONTOOLTIP = "关闭此自动清扫器的温度过滤器，恢复默认拾取。";
-                public static LocString TEMPERATUREFILTERTITLE = "温度过滤器";
-                public static LocString MINTEMPERATURELABEL = "最低温度";
-                public static LocString MINTEMPERATURETOOLTIP = "允许拾取的最低物品温度。";
-                public static LocString MAXTEMPERATURELABEL = "最高温度";
-                public static LocString MAXTEMPERATURETOOLTIP = "允许拾取的最高物品温度。";
-                public static LocString ADDGLOBALZONEBUTTON = "加入全局区域";
-                public static LocString ADDGLOBALZONEBUTTONTOOLTIP = "把此建筑占用的格子加入所有区域模式自动清扫器共享的工作区域。";
-                public static LocString REMOVEGLOBALZONEBUTTON = "移出全局区域";
-                public static LocString REMOVEGLOBALZONEBUTTONTOOLTIP = "把此建筑占用的格子从所有区域模式自动清扫器共享的工作区域中移除。";
+                public static LocString ENABLEZONEBUTTON = "Enable Zone Mode";
+                public static LocString ENABLEZONEBUTTONTOOLTIP = "Let this auto sweeper only pick up items inside the assigned zone.";
+                public static LocString DISABLEZONEBUTTON = "Disable Zone Mode";
+                public static LocString DISABLEZONEBUTTONTOOLTIP = "Disable zone restrictions for this auto sweeper and restore the original pickup logic.";
+                public static LocString ADDZONEBUTTON = "Add Zone";
+                public static LocString ADDZONEBUTTONTOOLTIP = "Add a zone where this auto sweeper can pick up items.";
+                public static LocString REMOVEZONEBUTTON = "Remove Zone";
+                public static LocString REMOVEZONEBUTTONTOOLTIP = "Remove cells from this auto sweeper's working zone.";
+                public static LocString ENABLEGLOBALZONEBUTTON = "Enable Global Zone";
+                public static LocString ENABLEGLOBALZONEBUTTONTOOLTIP = "Let this auto sweeper treat the global sweeper zone as part of its working zone.";
+                public static LocString DISABLEGLOBALZONEBUTTON = "Disable Global Zone";
+                public static LocString DISABLEGLOBALZONEBUTTONTOOLTIP = "Let this auto sweeper use only its own zone and ignore the global sweeper zone.";
+                public static LocString ENABLEFILTERBUTTON = "Enable Filter";
+                public static LocString ENABLEFILTERBUTTONTOOLTIP = "Let this auto sweeper only pick up items allowed by the filter.";
+                public static LocString DISABLEFILTERBUTTON = "Disable Filter";
+                public static LocString DISABLEFILTERBUTTONTOOLTIP = "Disable the item filter for this auto sweeper and restore default pickup.";
+                public static LocString ENABLETEMPERATUREFILTERBUTTON = "Enable Temperature Filter";
+                public static LocString ENABLETEMPERATUREFILTERBUTTONTOOLTIP = "Let this auto sweeper only pick up items within the specified temperature range.";
+                public static LocString DISABLETEMPERATUREFILTERBUTTON = "Disable Temperature Filter";
+                public static LocString DISABLETEMPERATUREFILTERBUTTONTOOLTIP = "Disable the temperature filter for this auto sweeper and restore default pickup.";
+                public static LocString TEMPERATUREFILTERTITLE = "Temperature Filter";
+                public static LocString MINTEMPERATURELABEL = "Minimum Temperature";
+                public static LocString MINTEMPERATURETOOLTIP = "The minimum item temperature allowed for pickup.";
+                public static LocString MAXTEMPERATURELABEL = "Maximum Temperature";
+                public static LocString MAXTEMPERATURETOOLTIP = "The maximum item temperature allowed for pickup.";
+                public static LocString ADDGLOBALZONEBUTTON = "Add to Global Zone";
+                public static LocString ADDGLOBALZONEBUTTONTOOLTIP = "Add this building's occupied cells to the shared working zone used by all zone-mode auto sweepers.";
+                public static LocString REMOVEGLOBALZONEBUTTON = "Remove from Global Zone";
+                public static LocString REMOVEGLOBALZONEBUTTONTOOLTIP = "Remove this building's occupied cells from the shared working zone used by all zone-mode auto sweepers.";
             }
         }
 
@@ -40,22 +49,22 @@ public static class ZonedSolidTransferArmStrings
         {
             public static class ZONE
             {
-                public static LocString NAME = "清扫器区域模式";
-                public static LocString TOOLTIP = "拖拽编辑当前自动清扫器的工作区域。";
+                public static LocString NAME = "Sweeper Zone Mode";
+                public static LocString TOOLTIP = "Drag to edit the working zone for the current auto sweeper.";
             }
 
             public static class GLOBALZONE
             {
-                public static LocString NAME = "全局清扫器区域";
-                public static LocString TOOLTIP = "编辑所有区域模式自动清扫器共享的工作区域。";
-                public static LocString ADDNAME = "添加全局区域";
-                public static LocString ADDTOOLTIP = "向所有区域模式自动清扫器共享的工作区域添加格子。";
-                public static LocString REMOVENAME = "删除全局区域";
-                public static LocString REMOVETOOLTIP = "从所有区域模式自动清扫器共享的工作区域删除格子。";
-                public static LocString TEMPORARYCONSTRUCTIONNAME = "自动加入待建区域";
-                public static LocString TEMPORARYCONSTRUCTIONTOOLTIP = "放置建筑虚影时，自动把待建区域临时加入全局清扫器区域。";
-                public static LocString TEMPORARYCLEARNAME = "自动加入清扫区域";
-                public static LocString TEMPORARYCLEARTOOLTIP = "标记清扫物品时，自动把物品所在格临时加入全局清扫器区域。";
+                public static LocString NAME = "Global Sweeper Zone";
+                public static LocString TOOLTIP = "Edit the shared working zone used by all zone-mode auto sweepers.";
+                public static LocString ADDNAME = "Add Global Zone";
+                public static LocString ADDTOOLTIP = "Add cells to the shared working zone used by all zone-mode auto sweepers.";
+                public static LocString REMOVENAME = "Remove Global Zone";
+                public static LocString REMOVETOOLTIP = "Remove cells from the shared working zone used by all zone-mode auto sweepers.";
+                public static LocString TEMPORARYCONSTRUCTIONNAME = "Auto-add Build Zone";
+                public static LocString TEMPORARYCONSTRUCTIONTOOLTIP = "Automatically add the planned building area to the global sweeper zone while a building ghost is placed.";
+                public static LocString TEMPORARYCLEARNAME = "Auto-add Sweep Zone";
+                public static LocString TEMPORARYCLEARTOOLTIP = "Automatically add the item's cell to the global sweeper zone when marking items for sweeping.";
             }
         }
 
@@ -63,16 +72,16 @@ public static class ZonedSolidTransferArmStrings
         {
             public static class ZONE
             {
-                public static LocString NAME = "清扫器区域模式";
-                public static LocString MARKED = "工作区域";
-                public static LocString TOOLTIP = "当前清扫器启用区域模式时只会拾取这些格子内的物品。";
+                public static LocString NAME = "Sweeper Zone Mode";
+                public static LocString MARKED = "Working Zone";
+                public static LocString TOOLTIP = "Auto sweepers with zone mode enabled will only pick up items in these cells.";
             }
 
             public static class GLOBALZONE
             {
-                public static LocString NAME = "全局清扫器区域";
-                public static LocString MARKED = "全局工作区域";
-                public static LocString TOOLTIP = "启用区域模式的自动清扫器都会拾取这些格子内的物品。";
+                public static LocString NAME = "Global Sweeper Zone";
+                public static LocString MARKED = "Global Working Zone";
+                public static LocString TOOLTIP = "Auto sweepers with zone mode enabled will pick up items in these cells.";
             }
         }
     }

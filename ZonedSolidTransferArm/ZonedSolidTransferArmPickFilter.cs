@@ -85,17 +85,17 @@ public class ZonedSolidTransferArmPickFilter : KMonoBehaviour
     {
         Game.Instance.userMenu.AddButton(gameObject, new KIconButtonMenu.ButtonInfo(
             "action_switch_toggle",
-            Strings.Get(filterEnabled
-                ? "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEFILTERBUTTON"
-                : "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEFILTERBUTTON"),
+            ZonedSolidTransferArmStrings.Text(filterEnabled
+                ? ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEFILTERBUTTON
+                : ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEFILTERBUTTON),
             ToggleFilter,
             global::Action.NumActions,
             null,
             null,
             null,
-            Strings.Get(filterEnabled
-                ? "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEFILTERBUTTONTOOLTIP"
-                : "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEFILTERBUTTONTOOLTIP")), 0.45f);
+            ZonedSolidTransferArmStrings.Text(filterEnabled
+                ? ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEFILTERBUTTONTOOLTIP
+                : ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEFILTERBUTTONTOOLTIP)), 0.45f);
     }
 
     private void ToggleFilter()

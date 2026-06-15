@@ -20,6 +20,9 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
     private bool zoneModeEnabled;
 
     [Serialize]
+    private bool useGlobalZone = true;
+
+    [Serialize]
     private string serializedCells = "";
 
     private bool savedRangeVisualizer;
@@ -56,6 +59,16 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
     public static bool TryGetZoneSnapshot(SolidTransferArm arm, out HashSet<int> snapshot)
     {
         return ZoneSnapshots.TryGetValue(arm, out snapshot);
+    }
+
+    public bool UsesOnlyGlobalZone()
+    {
+        return zoneModeEnabled && useGlobalZone && cells.Count == 0;
+    }
+
+    public bool UsesGlobalZone()
+    {
+        return zoneModeEnabled && useGlobalZone;
     }
 
     public IEnumerable<int> Cells => cells;
@@ -140,17 +153,17 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
     {
         Game.Instance.userMenu.AddButton(gameObject, new KIconButtonMenu.ButtonInfo(
             "action_switch_toggle",
-            Strings.Get(zoneModeEnabled
-                ? "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEZONEBUTTON"
-                : "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEZONEBUTTON"),
+            ZonedSolidTransferArmStrings.Text(zoneModeEnabled
+                ? ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEZONEBUTTON
+                : ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEZONEBUTTON),
             ToggleZoneMode,
             global::Action.NumActions,
             null,
             null,
             null,
-            Strings.Get(zoneModeEnabled
-                ? "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEZONEBUTTONTOOLTIP"
-                : "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEZONEBUTTONTOOLTIP")), 0.45f);
+            ZonedSolidTransferArmStrings.Text(zoneModeEnabled
+                ? ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEZONEBUTTONTOOLTIP
+                : ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEZONEBUTTONTOOLTIP)), 0.45f);
         if (!zoneModeEnabled)
         {
             return;
@@ -158,22 +171,35 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
 
         Game.Instance.userMenu.AddButton(gameObject, new KIconButtonMenu.ButtonInfo(
             "action_move_to_storage",
-            Strings.Get("STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDZONEBUTTON"),
+            ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDZONEBUTTON),
             ActivateAddZoneTool,
             global::Action.NumActions,
             null,
             null,
             null,
-            Strings.Get("STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDZONEBUTTONTOOLTIP")), 0.45f);
+            ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDZONEBUTTONTOOLTIP)), 0.45f);
         Game.Instance.userMenu.AddButton(gameObject, new KIconButtonMenu.ButtonInfo(
             "action_cancel",
-            Strings.Get("STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEZONEBUTTON"),
+            ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEZONEBUTTON),
             ActivateRemoveZoneTool,
             global::Action.NumActions,
             null,
             null,
             null,
-            Strings.Get("STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEZONEBUTTONTOOLTIP")), 0.45f);
+            ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEZONEBUTTONTOOLTIP)), 0.45f);
+        Game.Instance.userMenu.AddButton(gameObject, new KIconButtonMenu.ButtonInfo(
+            "action_switch_toggle",
+            ZonedSolidTransferArmStrings.Text(useGlobalZone
+                ? ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEGLOBALZONEBUTTON
+                : ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEGLOBALZONEBUTTON),
+            ToggleGlobalZone,
+            global::Action.NumActions,
+            null,
+            null,
+            null,
+            ZonedSolidTransferArmStrings.Text(useGlobalZone
+                ? ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEGLOBALZONEBUTTONTOOLTIP
+                : ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEGLOBALZONEBUTTONTOOLTIP)), 0.45f);
     }
 
     private void ToggleZoneMode()
@@ -211,6 +237,14 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
         PlayerController.Instance.ActivateTool(ZonedSolidTransferArmZoneTool.Instance);
     }
 
+    private void ToggleGlobalZone()
+    {
+        useGlobalZone = !useGlobalZone;
+        SyncSnapshot();
+        SyncRangeVisualizer();
+        Game.Instance.Trigger(1980521255, gameObject);
+    }
+
     private void OnCopySettings(object data)
     {
         if (data is not GameObject go || go.GetComponent<ZonedSolidTransferArmControl>() is not { } sourceControl)
@@ -228,6 +262,7 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
         {
             RestoreRangeVisualizer();
         }
+        useGlobalZone = sourceControl.useGlobalZone;
         cells.Clear();
         foreach (int cell in sourceControl.Cells)
         {
@@ -325,6 +360,11 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
     private HashSet<int> CreateEffectiveCells()
     {
         HashSet<int> effectiveCells = new(cells);
+        if (!useGlobalZone)
+        {
+            return effectiveCells;
+        }
+
         foreach (int cell in ZonedSolidTransferArmGlobalZone.MarkedCells)
         {
             effectiveCells.Add(cell);

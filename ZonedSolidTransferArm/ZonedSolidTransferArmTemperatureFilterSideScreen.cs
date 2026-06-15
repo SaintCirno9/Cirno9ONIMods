@@ -12,7 +12,7 @@ public class ZonedSolidTransferArmTemperatureFilterSideScreen : SideScreenConten
 
     public override string GetTitle()
     {
-        return Strings.Get("STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.TEMPERATUREFILTERTITLE");
+        return ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.TEMPERATUREFILTERTITLE);
     }
 
     public override bool IsValidForTarget(GameObject target)
@@ -38,21 +38,21 @@ public class ZonedSolidTransferArmTemperatureFilterSideScreen : SideScreenConten
         };
 
         panel.AddChild(CreateLabel("MinTemperatureLabel",
-            Strings.Get("STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MINTEMPERATURELABEL") +
+            ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MINTEMPERATURELABEL) +
             " " +
             GameUtil.GetTemperatureUnitSuffix()));
         panel.AddChild(CreateTemperatureField(
             "MinTemperatureField",
-            Strings.Get("STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MINTEMPERATURETOOLTIP"),
+            ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MINTEMPERATURETOOLTIP),
             value => targetFilter?.SetMinTemperature(ConvertInputToKelvin(value)),
             input => minInput = input));
         panel.AddChild(CreateLabel("MaxTemperatureLabel",
-            Strings.Get("STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MAXTEMPERATURELABEL") +
+            ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MAXTEMPERATURELABEL) +
             " " +
             GameUtil.GetTemperatureUnitSuffix()));
         panel.AddChild(CreateTemperatureField(
             "MaxTemperatureField",
-            Strings.Get("STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MAXTEMPERATURETOOLTIP"),
+            ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MAXTEMPERATURETOOLTIP),
             value => targetFilter?.SetMaxTemperature(ConvertInputToKelvin(value)),
             input => maxInput = input));
 

@@ -18,17 +18,17 @@ public class ZonedSolidTransferArmGlobalZoneUserMenu : KMonoBehaviour
         bool inGlobalZone = IsBuildingAreaInGlobalZone();
         Game.Instance.userMenu.AddButton(gameObject, new KIconButtonMenu.ButtonInfo(
             inGlobalZone ? "action_cancel" : "action_move_to_storage",
-            Strings.Get(inGlobalZone
-                ? "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEGLOBALZONEBUTTON"
-                : "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDGLOBALZONEBUTTON"),
+            ZonedSolidTransferArmStrings.Text(inGlobalZone
+                ? ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEGLOBALZONEBUTTON
+                : ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDGLOBALZONEBUTTON),
             ToggleBuildingAreaGlobalZone,
             global::Action.NumActions,
             null,
             null,
             null,
-            Strings.Get(inGlobalZone
-                ? "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEGLOBALZONEBUTTONTOOLTIP"
-                : "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDGLOBALZONEBUTTONTOOLTIP")), 0.45f);
+            ZonedSolidTransferArmStrings.Text(inGlobalZone
+                ? ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEGLOBALZONEBUTTONTOOLTIP
+                : ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDGLOBALZONEBUTTONTOOLTIP)), 0.45f);
     }
 
     private void ToggleBuildingAreaGlobalZone()

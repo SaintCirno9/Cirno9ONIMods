@@ -1,7 +1,9 @@
+using System.IO;
 using HarmonyLib;
 using KMod;
 using PeterHan.PLib.Actions;
 using PeterHan.PLib.Core;
+using UnityEngine;
 
 namespace ZonedSolidTransferArm;
 
@@ -9,48 +11,84 @@ public class ZonedSolidTransferArmMod : UserMod2
 {
     public static PAction GlobalZoneAction { get; private set; }
     public static PAction RemoveGlobalZoneAction { get; private set; }
+    private static bool generatedLocalizationTemplates;
 
     public override void OnLoad(Harmony harmony)
     {
         base.OnLoad(harmony);
         PUtil.InitLibrary();
-        LocString.CreateLocStringKeys(typeof(ZonedSolidTransferArmStrings.UI));
-        RegisterToolParameterStrings();
+        RegisterLocalization();
         GlobalZoneAction = new PActionManager().CreateAction(
             "ZONEDSOLIDTRANSFERARM.GLOBALZONE.ACTION",
-            ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.NAME,
+            ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.NAME),
             new PKeyBinding(KKeyCode.Z, Modifier.Alt));
         RemoveGlobalZoneAction = new PActionManager().CreateAction(
             "ZONEDSOLIDTRANSFERARM.GLOBALZONE.REMOVEACTION",
-            ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.REMOVENAME,
+            ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.REMOVENAME),
             new PKeyBinding(KKeyCode.Z, Modifier.Shift));
     }
 
-    private static void RegisterToolParameterStrings()
+    internal static void RegisterLocalization()
     {
-        Strings.Add(
-            "STRINGS.UI.TOOLS.FILTERLAYERS.ZONEDSOLIDTRANSFERARM_GLOBALZONE_ADD.NAME",
-            ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.ADDNAME);
-        Strings.Add(
-            "STRINGS.UI.TOOLS.FILTERLAYERS.ZONEDSOLIDTRANSFERARM_GLOBALZONE_ADD.TOOLTIP",
-            ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.ADDTOOLTIP);
-        Strings.Add(
-            "STRINGS.UI.TOOLS.FILTERLAYERS.ZONEDSOLIDTRANSFERARM_GLOBALZONE_REMOVE.NAME",
-            ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.REMOVENAME);
-        Strings.Add(
-            "STRINGS.UI.TOOLS.FILTERLAYERS.ZONEDSOLIDTRANSFERARM_GLOBALZONE_REMOVE.TOOLTIP",
-            ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.REMOVETOOLTIP);
-        Strings.Add(
-            "STRINGS.UI.TOOLS.FILTERLAYERS.ZONEDSOLIDTRANSFERARM_GLOBALZONE_TEMPORARY_CONSTRUCTION.NAME",
-            ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCONSTRUCTIONNAME);
-        Strings.Add(
-            "STRINGS.UI.TOOLS.FILTERLAYERS.ZONEDSOLIDTRANSFERARM_GLOBALZONE_TEMPORARY_CONSTRUCTION.TOOLTIP",
-            ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCONSTRUCTIONTOOLTIP);
-        Strings.Add(
-            "STRINGS.UI.TOOLS.FILTERLAYERS.ZONEDSOLIDTRANSFERARM_GLOBALZONE_TEMPORARY_CLEAR.NAME",
-            ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCLEARNAME);
-        Strings.Add(
-            "STRINGS.UI.TOOLS.FILTERLAYERS.ZONEDSOLIDTRANSFERARM_GLOBALZONE_TEMPORARY_CLEAR.TOOLTIP",
-            ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCLEARTOOLTIP);
+        Localization.RegisterForTranslation(typeof(ZonedSolidTransferArmStrings));
+        LoadCurrentLocalization();
+        LocString.CreateLocStringKeys(typeof(ZonedSolidTransferArmStrings), null);
+        GenerateLocalizationTemplates();
+    }
+
+    internal static void LoadCurrentLocalization()
+    {
+        string localeCode = Localization.GetLocale()?.Code;
+        if (string.IsNullOrEmpty(localeCode))
+        {
+            return;
+        }
+
+        string poPath = Path.Combine(PUtil.GetModPath(typeof(ZonedSolidTransferArmMod).Assembly), "translations", localeCode + ".po");
+        if (!File.Exists(poPath))
+        {
+            return;
+        }
+
+        Localization.OverloadStrings(Localization.LoadStringsFile(poPath, false));
+        Debug.Log("[ZonedSolidTransferArm] Found translation file for " + localeCode + ".");
+    }
+
+    private static void GenerateLocalizationTemplates()
+    {
+        if (generatedLocalizationTemplates)
+        {
+            return;
+        }
+        generatedLocalizationTemplates = true;
+
+        string modPath = PUtil.GetModPath(typeof(ZonedSolidTransferArmMod).Assembly);
+        string translationFolder = Path.Combine(modPath, "translations");
+        Directory.CreateDirectory(translationFolder);
+
+        Localization.GenerateStringsTemplate(
+            typeof(ZonedSolidTransferArmStrings),
+            Path.Combine(modPath, "strings_templates"));
+        Localization.GenerateStringsTemplate(
+            typeof(ZonedSolidTransferArmStrings).Namespace,
+            typeof(ZonedSolidTransferArmMod).Assembly,
+            Path.Combine(modPath, "translation_template.pot"),
+            null);
+        Localization.GenerateStringsTemplate(
+            typeof(ZonedSolidTransferArmStrings).Namespace,
+            typeof(ZonedSolidTransferArmMod).Assembly,
+            Path.Combine(translationFolder, "translation_template.pot"),
+            null);
+    }
+}
+
+[HarmonyPatch(typeof(Localization), nameof(Localization.Initialize))]
+[HarmonyAfter("PeterHan.PLib")]
+[HarmonyPriority(Priority.Last)]
+public static class ZonedSolidTransferArmLocalizationInitializePatch
+{
+    public static void Postfix()
+    {
+        ZonedSolidTransferArmMod.RegisterLocalization();
     }
 }

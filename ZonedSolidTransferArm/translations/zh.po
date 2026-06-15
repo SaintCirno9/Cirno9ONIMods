@@ -1,0 +1,248 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ZonedSolidTransferArm\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: SaintCirno9\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Application: Oxygen Not Included\n"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEZONEBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEZONEBUTTON"
+msgid "Enable Zone Mode"
+msgstr "启用区域模式"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEZONEBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEZONEBUTTONTOOLTIP"
+msgid "Let this auto sweeper only pick up items inside the assigned zone."
+msgstr "让此自动清扫器只在指定区域内拾取物品。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEZONEBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEZONEBUTTON"
+msgid "Disable Zone Mode"
+msgstr "停用区域模式"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEZONEBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEZONEBUTTONTOOLTIP"
+msgid "Disable zone restrictions for this auto sweeper and restore the original pickup logic."
+msgstr "停用此自动清扫器的区域限制，恢复原本的拾取逻辑。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDZONEBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDZONEBUTTON"
+msgid "Add Zone"
+msgstr "添加区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDZONEBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDZONEBUTTONTOOLTIP"
+msgid "Add a zone where this auto sweeper can pick up items."
+msgstr "为此自动清扫器添加允许拾取物品的区域。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEZONEBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEZONEBUTTON"
+msgid "Remove Zone"
+msgstr "删除区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEZONEBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEZONEBUTTONTOOLTIP"
+msgid "Remove cells from this auto sweeper's working zone."
+msgstr "从此自动清扫器的工作区域中删除格子。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEGLOBALZONEBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEGLOBALZONEBUTTON"
+msgid "Enable Global Zone"
+msgstr "启用全局区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEGLOBALZONEBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEGLOBALZONEBUTTONTOOLTIP"
+msgid "Let this auto sweeper treat the global sweeper zone as part of its working zone."
+msgstr "让此自动清扫器把全局清扫器区域也算作自己的工作区域。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEGLOBALZONEBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEGLOBALZONEBUTTON"
+msgid "Disable Global Zone"
+msgstr "关闭全局区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEGLOBALZONEBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEGLOBALZONEBUTTONTOOLTIP"
+msgid "Let this auto sweeper use only its own zone and ignore the global sweeper zone."
+msgstr "让此自动清扫器只使用自己的独立区域，不再考虑全局清扫器区域。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEFILTERBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEFILTERBUTTON"
+msgid "Enable Filter"
+msgstr "启用过滤器"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEFILTERBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEFILTERBUTTONTOOLTIP"
+msgid "Let this auto sweeper only pick up items allowed by the filter."
+msgstr "让此自动清扫器只拾取过滤器允许的物品。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEFILTERBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEFILTERBUTTON"
+msgid "Disable Filter"
+msgstr "关闭过滤器"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEFILTERBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLEFILTERBUTTONTOOLTIP"
+msgid "Disable the item filter for this auto sweeper and restore default pickup."
+msgstr "关闭此自动清扫器的物品过滤器，恢复默认拾取。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLETEMPERATUREFILTERBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLETEMPERATUREFILTERBUTTON"
+msgid "Enable Temperature Filter"
+msgstr "启用温度过滤器"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLETEMPERATUREFILTERBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLETEMPERATUREFILTERBUTTONTOOLTIP"
+msgid "Let this auto sweeper only pick up items within the specified temperature range."
+msgstr "让此自动清扫器只拾取指定温度范围内的物品。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLETEMPERATUREFILTERBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLETEMPERATUREFILTERBUTTON"
+msgid "Disable Temperature Filter"
+msgstr "关闭温度过滤器"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLETEMPERATUREFILTERBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLETEMPERATUREFILTERBUTTONTOOLTIP"
+msgid "Disable the temperature filter for this auto sweeper and restore default pickup."
+msgstr "关闭此自动清扫器的温度过滤器，恢复默认拾取。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.TEMPERATUREFILTERTITLE
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.TEMPERATUREFILTERTITLE"
+msgid "Temperature Filter"
+msgstr "温度过滤器"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MINTEMPERATURELABEL
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MINTEMPERATURELABEL"
+msgid "Minimum Temperature"
+msgstr "最低温度"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MINTEMPERATURETOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MINTEMPERATURETOOLTIP"
+msgid "The minimum item temperature allowed for pickup."
+msgstr "允许拾取的最低物品温度。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MAXTEMPERATURELABEL
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MAXTEMPERATURELABEL"
+msgid "Maximum Temperature"
+msgstr "最高温度"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MAXTEMPERATURETOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.MAXTEMPERATURETOOLTIP"
+msgid "The maximum item temperature allowed for pickup."
+msgstr "允许拾取的最高物品温度。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDGLOBALZONEBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDGLOBALZONEBUTTON"
+msgid "Add to Global Zone"
+msgstr "加入全局区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDGLOBALZONEBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ADDGLOBALZONEBUTTONTOOLTIP"
+msgid "Add this building's occupied cells to the shared working zone used by all zone-mode auto sweepers."
+msgstr "把此建筑占用的格子加入所有区域模式自动清扫器共享的工作区域。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEGLOBALZONEBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEGLOBALZONEBUTTON"
+msgid "Remove from Global Zone"
+msgstr "移出全局区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEGLOBALZONEBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.REMOVEGLOBALZONEBUTTONTOOLTIP"
+msgid "Remove this building's occupied cells from the shared working zone used by all zone-mode auto sweepers."
+msgstr "把此建筑占用的格子从所有区域模式自动清扫器共享的工作区域中移除。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.ZONE.NAME
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.ZONE.NAME"
+msgid "Sweeper Zone Mode"
+msgstr "清扫器区域模式"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.ZONE.TOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.ZONE.TOOLTIP"
+msgid "Drag to edit the working zone for the current auto sweeper."
+msgstr "拖拽编辑当前自动清扫器的工作区域。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.NAME
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.NAME"
+msgid "Global Sweeper Zone"
+msgstr "全局清扫器区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TOOLTIP"
+msgid "Edit the shared working zone used by all zone-mode auto sweepers."
+msgstr "编辑所有区域模式自动清扫器共享的工作区域。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.ADDNAME
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.ADDNAME"
+msgid "Add Global Zone"
+msgstr "添加全局区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.ADDTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.ADDTOOLTIP"
+msgid "Add cells to the shared working zone used by all zone-mode auto sweepers."
+msgstr "向所有区域模式自动清扫器共享的工作区域添加格子。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.REMOVENAME
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.REMOVENAME"
+msgid "Remove Global Zone"
+msgstr "删除全局区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.REMOVETOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.REMOVETOOLTIP"
+msgid "Remove cells from the shared working zone used by all zone-mode auto sweepers."
+msgstr "从所有区域模式自动清扫器共享的工作区域删除格子。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCONSTRUCTIONNAME
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCONSTRUCTIONNAME"
+msgid "Auto-add Build Zone"
+msgstr "自动加入待建区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCONSTRUCTIONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCONSTRUCTIONTOOLTIP"
+msgid "Automatically add the planned building area to the global sweeper zone while a building ghost is placed."
+msgstr "放置建筑虚影时，自动把待建区域临时加入全局清扫器区域。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCLEARNAME
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCLEARNAME"
+msgid "Auto-add Sweep Zone"
+msgstr "自动加入清扫区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCLEARTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCLEARTOOLTIP"
+msgid "Automatically add the item's cell to the global sweeper zone when marking items for sweeping."
+msgstr "标记清扫物品时，自动把物品所在格临时加入全局清扫器区域。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.NAME
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.NAME"
+msgid "Sweeper Zone Mode"
+msgstr "清扫器区域模式"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.MARKED
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.MARKED"
+msgid "Working Zone"
+msgstr "工作区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.TOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.TOOLTIP"
+msgid "Auto sweepers with zone mode enabled will only pick up items in these cells."
+msgstr "当前清扫器启用区域模式时只会拾取这些格子内的物品。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.NAME
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.NAME"
+msgid "Global Sweeper Zone"
+msgstr "全局清扫器区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.MARKED
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.MARKED"
+msgid "Global Working Zone"
+msgstr "全局工作区域"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.TOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.TOOLTIP"
+msgid "Auto sweepers with zone mode enabled will pick up items in these cells."
+msgstr "启用区域模式的自动清扫器都会拾取这些格子内的物品。"

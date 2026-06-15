@@ -12,6 +12,7 @@ public static class ZonedSolidTransferArmPatches
     private const float FetchChoreCacheDuration = 0.5f;
     private static readonly Dictionary<SolidTransferArm, CachedFetchChores> CachedFetchChoresByArm = new();
     private static readonly Dictionary<SolidTransferArm, PickupableAvailability> PickupableAvailabilityByArm = new();
+    private static readonly SharedGlobalZonePickupablesCache SharedGlobalZonePickupables = new();
 
     private sealed class CachedFetchChores
     {
@@ -67,6 +68,26 @@ public static class ZonedSolidTransferArmPatches
         }
     }
 
+    private sealed class SharedGlobalZonePickupablesCache
+    {
+        public readonly object SyncRoot = new();
+        public int GlobalZoneRevision = -1;
+        public float NextRefreshTime;
+        public List<Pickupable> Pickupables = new();
+    }
+
+    private sealed class SharedGlobalPickupVisitorContext
+    {
+        public readonly List<Pickupable> Pickupables;
+        public readonly HashSet<Pickupable> SeenPickupables;
+
+        public SharedGlobalPickupVisitorContext(List<Pickupable> pickupables, HashSet<Pickupable> seenPickupables)
+        {
+            Pickupables = pickupables;
+            SeenPickupables = seenPickupables;
+        }
+    }
+
     private static CachedFetchChores GetCachedFetchChores(SolidTransferArm arm)
     {
         if (!CachedFetchChoresByArm.TryGetValue(arm, out CachedFetchChores cachedFetchChores))
@@ -87,6 +108,16 @@ public static class ZonedSolidTransferArmPatches
         }
 
         return pickupableAvailability;
+    }
+
+    private static bool UsesOnlyGlobalZone(SolidTransferArm arm)
+    {
+        return arm.GetComponent<ZonedSolidTransferArmControl>() is { } control && control.UsesOnlyGlobalZone();
+    }
+
+    private static bool UsesGlobalZone(SolidTransferArm arm)
+    {
+        return arm.GetComponent<ZonedSolidTransferArmControl>() is { } control && control.UsesGlobalZone();
     }
 
     [HarmonyPatch(typeof(PlayerController), "OnPrefabInit")]
@@ -120,16 +151,16 @@ public static class ZonedSolidTransferArmPatches
         public static void Postfix(ToolMenu __instance)
         {
             ToolMenu.ToolCollection collection = new(
-                ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.NAME,
+                ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.NAME),
                 "icon_action_store",
-                ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TOOLTIP);
+                ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TOOLTIP));
             new ToolMenu.ToolInfo(
-                ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.NAME,
+                ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.NAME),
                 "icon_action_store",
                 ZonedSolidTransferArmMod.GlobalZoneAction.GetKAction(),
                 "ZonedSolidTransferArmGlobalZoneTool",
                 collection,
-                ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TOOLTIP,
+                ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TOOLTIP),
                 OnSelectGlobalZoneAddTool);
             __instance.basicTools.Add(collection);
         }
@@ -154,6 +185,54 @@ public static class ZonedSolidTransferArmPatches
                     collection.toggle.AddOrGet<ZonedSolidTransferArmGlobalZoneToolRightClick>();
                     break;
                 }
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(ToolParameterMenu), "CreateToggleGameObject")]
+    public static class ToolParameterMenuCreateToggleGameObjectPatch
+    {
+        public static void Postfix(ToolParameterMenu.ToggleData data, GameObject __result)
+        {
+            if (!TryGetParameterStrings(data.name, out LocString label, out LocString tooltip))
+            {
+                return;
+            }
+
+            LocText text = __result.GetComponentInChildren<LocText>();
+            text.text = ZonedSolidTransferArmStrings.Text(label);
+
+            ToolTip toolTip = __result.GetComponentInChildren<ToolTip>();
+            if (toolTip != null)
+            {
+                toolTip.SetSimpleTooltip(ZonedSolidTransferArmStrings.Text(tooltip));
+            }
+        }
+
+        private static bool TryGetParameterStrings(string name, out LocString label, out LocString tooltip)
+        {
+            switch (name)
+            {
+                case ZonedSolidTransferArmGlobalZoneTool.AddParameter:
+                    label = ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.ADDNAME;
+                    tooltip = ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.ADDTOOLTIP;
+                    return true;
+                case ZonedSolidTransferArmGlobalZoneTool.RemoveParameter:
+                    label = ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.REMOVENAME;
+                    tooltip = ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.REMOVETOOLTIP;
+                    return true;
+                case ZonedSolidTransferArmGlobalZoneTool.TemporaryConstructionParameter:
+                    label = ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCONSTRUCTIONNAME;
+                    tooltip = ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCONSTRUCTIONTOOLTIP;
+                    return true;
+                case ZonedSolidTransferArmGlobalZoneTool.TemporaryClearParameter:
+                    label = ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCLEARNAME;
+                    tooltip = ZonedSolidTransferArmStrings.UI.TOOLS.GLOBALZONE.TEMPORARYCLEARTOOLTIP;
+                    return true;
+                default:
+                    label = null;
+                    tooltip = null;
+                    return false;
             }
         }
     }
@@ -364,14 +443,14 @@ public static class ZonedSolidTransferArmPatches
         {
             ___overlayInfoList.Add(new OverlayLegend.OverlayInfo
             {
-                name = ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.NAME,
+                name = ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.NAME.key.String,
                 mode = ZonedSolidTransferArmZoneOverlay.ID,
                 infoUnits = new List<OverlayLegend.OverlayInfoUnit>(),
                 isProgrammaticallyPopulated = true
             });
             ___overlayInfoList.Add(new OverlayLegend.OverlayInfo
             {
-                name = ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.NAME,
+                name = ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.NAME.key.String,
                 mode = ZonedSolidTransferArmGlobalZoneOverlay.ID,
                 infoUnits = new List<OverlayLegend.OverlayInfoUnit>(),
                 isProgrammaticallyPopulated = true
@@ -412,6 +491,7 @@ public static class ZonedSolidTransferArmPatches
         {
             HashSet<int> reachableCells = (HashSet<int>)ReachableCellsField.GetValue(arm);
             List<Pickupable> pickupables = (List<Pickupable>)PickupablesField.GetValue(arm);
+            ZonedSolidTransferArmControl control = arm.GetComponent<ZonedSolidTransferArmControl>();
 
             ListPool<int, SolidTransferArm>.PooledList oldReachable = ListPool<int, SolidTransferArm>.Allocate();
             oldReachable.AddRange(reachableCells);
@@ -419,7 +499,20 @@ public static class ZonedSolidTransferArmPatches
             MinionGroupProber.Get().Vacate(oldReachable);
 
             pickupables.Clear();
-            if (zoneCells.Count > 0)
+            if (control != null && UsesGlobalZone(arm))
+            {
+                FillPickupablesFromSharedGlobalZone(arm, pickupables);
+            }
+
+            if (control is { CellCount: > 0 })
+            {
+                HashSet<int> localCells = new(control.Cells);
+                if (localCells.Count > 0)
+                {
+                    VisitPickupablesInZoneCells(arm, localCells, pickupables);
+                }
+            }
+            else if (zoneCells.Count > 0 && !UsesOnlyGlobalZone(arm))
             {
                 VisitPickupablesInZoneCells(arm, zoneCells, pickupables);
             }
@@ -430,6 +523,20 @@ public static class ZonedSolidTransferArmPatches
             return true;
         }
 
+        private static void FillPickupablesFromSharedGlobalZone(SolidTransferArm arm, List<Pickupable> pickupables)
+        {
+            int carrierID = ((KPrefabID)KPrefabIDField.GetValue(arm)).InstanceID;
+            foreach (Pickupable pickupable in GetSharedGlobalZonePickupables())
+            {
+                if (CanBePickedUpByZonedTransferArm(pickupable, carrierID) &&
+                    ZonedSolidTransferArmPickFilter.AllowsPickup(arm, pickupable) &&
+                    ZonedSolidTransferArmTemperatureFilter.AllowsPickup(arm, pickupable))
+                {
+                    pickupables.Add(pickupable);
+                }
+            }
+        }
+
         private static void VisitPickupablesInZoneCells(SolidTransferArm arm, HashSet<int> reachableCells, List<Pickupable> pickupables)
         {
             PickupVisitorContext context = new PickupVisitorContext(
@@ -437,6 +544,13 @@ public static class ZonedSolidTransferArmPatches
                 (KPrefabID)KPrefabIDField.GetValue(arm),
                 reachableCells,
                 pickupables);
+            foreach (Pickupable pickupable in pickupables)
+            {
+                if (pickupable != null)
+                {
+                    context.Seen.Add(pickupable);
+                }
+            }
             HashSet<int> visitedNodes = new();
             foreach (int cell in reachableCells)
             {
@@ -540,6 +654,99 @@ public static class ZonedSolidTransferArmPatches
                 ReachableCells = reachableCells;
                 Pickupables = pickupables;
             }
+        }
+
+        private static IEnumerable<Pickupable> GetSharedGlobalZonePickupables()
+        {
+            float currentGameTime = GameClock.Instance?.GetTime() ?? 0f;
+            int globalZoneRevision = ZonedSolidTransferArmGlobalZone.Revision;
+            if (SharedGlobalZonePickupables.GlobalZoneRevision != globalZoneRevision ||
+                currentGameTime >= SharedGlobalZonePickupables.NextRefreshTime)
+            {
+                lock (SharedGlobalZonePickupables.SyncRoot)
+                {
+                    if (SharedGlobalZonePickupables.GlobalZoneRevision != globalZoneRevision ||
+                        currentGameTime >= SharedGlobalZonePickupables.NextRefreshTime)
+                    {
+                        RebuildSharedGlobalZonePickupables(currentGameTime, globalZoneRevision);
+                    }
+                }
+            }
+
+            return SharedGlobalZonePickupables.Pickupables;
+        }
+
+        private static void RebuildSharedGlobalZonePickupables(float currentGameTime, int globalZoneRevision)
+        {
+            List<Pickupable> pickupables = new();
+            HashSet<Pickupable> seenPickupables = new();
+
+            HashSet<int> visitedNodes = new();
+            SharedGlobalPickupVisitorContext sharedContext = new(pickupables, seenPickupables);
+            foreach (int cell in ZonedSolidTransferArmGlobalZone.MarkedCells)
+            {
+                if (!Grid.IsValidCell(cell))
+                {
+                    continue;
+                }
+
+                Grid.CellToXY(cell, out int x, out int y);
+                int nodeX = x / ScenePartitionerNodeSize;
+                int nodeY = y / ScenePartitionerNodeSize;
+                int nodeKey = nodeY * Grid.WidthInCells + nodeX;
+                if (!visitedNodes.Add(nodeKey))
+                {
+                    continue;
+                }
+
+                GameScenePartitioner.Instance.ReadonlyVisitEntries(
+                    nodeX * ScenePartitionerNodeSize,
+                    nodeY * ScenePartitionerNodeSize,
+                    ScenePartitionerNodeSize,
+                    ScenePartitionerNodeSize,
+                    GameScenePartitioner.Instance.pickupablesLayer,
+                    VisitSharedGlobalPickupable,
+                    sharedContext);
+                GameScenePartitioner.Instance.ReadonlyVisitEntries(
+                    nodeX * ScenePartitionerNodeSize,
+                    nodeY * ScenePartitionerNodeSize,
+                    ScenePartitionerNodeSize,
+                    ScenePartitionerNodeSize,
+                    GameScenePartitioner.Instance.storedPickupablesLayer,
+                    VisitSharedGlobalPickupable,
+                    sharedContext);
+            }
+
+            SharedGlobalZonePickupables.Pickupables = pickupables;
+            SharedGlobalZonePickupables.GlobalZoneRevision = globalZoneRevision;
+            SharedGlobalZonePickupables.NextRefreshTime = currentGameTime + FetchChoreCacheDuration;
+        }
+
+        private static Util.IterationInstruction VisitSharedGlobalPickupable(
+            object obj,
+            SharedGlobalPickupVisitorContext state)
+        {
+            if (obj is not Pickupable pickupable)
+            {
+                return Util.IterationInstruction.Continue;
+            }
+
+            if (!ZonedSolidTransferArmGlobalZone.ContainsCell(pickupable.cachedCell))
+            {
+                return Util.IterationInstruction.Continue;
+            }
+
+            if (!Assets.IsTagSolidTransferArmConveyable(pickupable.KPrefabID.PrefabTag))
+            {
+                return Util.IterationInstruction.Continue;
+            }
+
+            if (state.SeenPickupables.Add(pickupable))
+            {
+                state.Pickupables.Add(pickupable);
+            }
+
+            return Util.IterationInstruction.Continue;
         }
     }
 

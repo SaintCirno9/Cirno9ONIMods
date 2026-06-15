@@ -41,6 +41,7 @@ public static class ZonedSolidTransferArmGlobalZone
     private static bool temporaryConstructionZonesEnabled = true;
     private static bool temporaryClearZonesEnabled = true;
     private static bool temporarySyncScheduled;
+    private static int revision;
 
     public static IEnumerable<int> MarkedCells
     {
@@ -59,6 +60,8 @@ public static class ZonedSolidTransferArmGlobalZone
 
     public static int CellCount => Cells.Count + TemporaryCells.Count;
 
+    public static int Revision => revision;
+
     public static bool TemporaryConstructionZonesEnabled => temporaryConstructionZonesEnabled;
 
     public static bool TemporaryClearZonesEnabled => temporaryClearZonesEnabled;
@@ -76,7 +79,7 @@ public static class ZonedSolidTransferArmGlobalZone
     public static void AddCell(int cell)
     {
         Cells[cell] = 0;
-        ZonedSolidTransferArmControl.OnGlobalZoneChanged();
+        NotifyChanged();
     }
 
     public static void AddCells(IEnumerable<int> cells)
@@ -92,7 +95,7 @@ public static class ZonedSolidTransferArmGlobalZone
         }
         if (changed)
         {
-            ZonedSolidTransferArmControl.OnGlobalZoneChanged();
+            NotifyChanged();
         }
     }
 
@@ -100,7 +103,7 @@ public static class ZonedSolidTransferArmGlobalZone
     {
         if (Cells.TryRemove(cell, out _))
         {
-            ZonedSolidTransferArmControl.OnGlobalZoneChanged();
+            NotifyChanged();
         }
     }
 
@@ -116,7 +119,7 @@ public static class ZonedSolidTransferArmGlobalZone
         }
         if (changed)
         {
-            ZonedSolidTransferArmControl.OnGlobalZoneChanged();
+            NotifyChanged();
         }
     }
 
@@ -127,6 +130,7 @@ public static class ZonedSolidTransferArmGlobalZone
         temporaryConstructionZonesEnabled = true;
         temporaryClearZonesEnabled = true;
         temporarySyncScheduled = false;
+        revision++;
     }
 
     public static void AddTemporaryConstructionCells(IEnumerable<int> cells)
@@ -189,6 +193,7 @@ public static class ZonedSolidTransferArmGlobalZone
         temporarySyncScheduled = false;
         RemoveExpiredTemporaryCells();
         ZonedSolidTransferArmControl.OnGlobalZoneChanged();
+        revision++;
     }
 
     private static void ScheduleTemporarySync()
@@ -226,8 +231,14 @@ public static class ZonedSolidTransferArmGlobalZone
         }
         if (changed)
         {
-            ZonedSolidTransferArmControl.OnGlobalZoneChanged();
+            NotifyChanged();
         }
+    }
+
+    private static void NotifyChanged()
+    {
+        revision++;
+        ZonedSolidTransferArmControl.OnGlobalZoneChanged();
     }
 
     private static TemporaryZoneSource GetActiveSources(int cell, TemporaryZoneSource sources)
@@ -327,7 +338,7 @@ public static class ZonedSolidTransferArmGlobalZone
                 Cells[cell] = 0;
             }
         }
-        ZonedSolidTransferArmControl.OnGlobalZoneChanged();
+        NotifyChanged();
     }
 
     public static void LoadTemporary(string data)
@@ -357,7 +368,7 @@ public static class ZonedSolidTransferArmGlobalZone
             }
         }
         RemoveExpiredTemporaryCells();
-        ZonedSolidTransferArmControl.OnGlobalZoneChanged();
+        NotifyChanged();
     }
 
     public static void RemoveInvalidCells()
@@ -379,7 +390,7 @@ public static class ZonedSolidTransferArmGlobalZone
         }
         if (changed)
         {
-            ZonedSolidTransferArmControl.OnGlobalZoneChanged();
+            NotifyChanged();
         }
     }
 }
@@ -476,8 +487,8 @@ public class ZonedSolidTransferArmGlobalZoneOverlay : OverlayModes.Mode
         return new List<LegendEntry>
         {
             new(
-                ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.MARKED,
-                ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.TOOLTIP,
+                ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.MARKED),
+                ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.OVERLAYS.GLOBALZONE.TOOLTIP),
                 ZonedSolidTransferArmControl.ZoneColor)
         };
     }
@@ -493,10 +504,10 @@ public class ZonedSolidTransferArmGlobalZoneTool : DragTool
 
     private static ZonedSolidTransferArmGlobalZoneTool instance;
     private static EditMode mode;
-    private const string AddParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_ADD";
-    private const string RemoveParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_REMOVE";
-    private const string TemporaryConstructionParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_TEMPORARY_CONSTRUCTION";
-    private const string TemporaryClearParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_TEMPORARY_CLEAR";
+    internal const string AddParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_ADD";
+    internal const string RemoveParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_REMOVE";
+    internal const string TemporaryConstructionParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_TEMPORARY_CONSTRUCTION";
+    internal const string TemporaryClearParameter = "ZONEDSOLIDTRANSFERARM_GLOBALZONE_TEMPORARY_CLEAR";
     private static readonly Color RemoveZoneColor = new(1f, 0.08f, 0.05f, 0.9f);
     private ToolParameterMenu.ToggleData addParameter;
     private ToolParameterMenu.ToggleData removeParameter;

@@ -95,17 +95,17 @@ public class ZonedSolidTransferArmTemperatureFilter : KMonoBehaviour
     {
         Game.Instance.userMenu.AddButton(gameObject, new KIconButtonMenu.ButtonInfo(
             "action_switch_toggle",
-            Strings.Get(temperatureFilterEnabled
-                ? "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLETEMPERATUREFILTERBUTTON"
-                : "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLETEMPERATUREFILTERBUTTON"),
+            ZonedSolidTransferArmStrings.Text(temperatureFilterEnabled
+                ? ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLETEMPERATUREFILTERBUTTON
+                : ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLETEMPERATUREFILTERBUTTON),
             ToggleTemperatureFilter,
             global::Action.NumActions,
             null,
             null,
             null,
-            Strings.Get(temperatureFilterEnabled
-                ? "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLETEMPERATUREFILTERBUTTONTOOLTIP"
-                : "STRINGS.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLETEMPERATUREFILTERBUTTONTOOLTIP")), 0.45f);
+            ZonedSolidTransferArmStrings.Text(temperatureFilterEnabled
+                ? ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLETEMPERATUREFILTERBUTTONTOOLTIP
+                : ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLETEMPERATUREFILTERBUTTONTOOLTIP)), 0.45f);
     }
 
     private void ToggleTemperatureFilter()

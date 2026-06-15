@@ -13,7 +13,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ModMetadata Include="mod.yaml;mod_info.yaml" />
+        <ModMetadata Include="mod.yaml;mod_info.yaml;preview.png" />
+        <ModTranslation Include="translations\*.po" />
     </ItemGroup>
 
     <ItemGroup>
@@ -51,9 +52,11 @@
 
     <Target Name="CopyMod" AfterTargets="MergeZonedSolidTransferArm">
         <Copy SourceFiles="@(ModMetadata)" DestinationFolder="$(TargetDir)" />
+        <Copy SourceFiles="@(ModTranslation)" DestinationFolder="$(TargetDir)translations" />
         <RemoveDir Directories="$(ModOutputDir)" Condition="Exists('$(ModOutputDir)')" />
         <MakeDir Directories="$(ModOutputDir)" />
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModOutputDir)" />
         <Copy SourceFiles="@(ModMetadata)" DestinationFolder="$(ModOutputDir)" />
+        <Copy SourceFiles="@(ModTranslation)" DestinationFolder="$(ModOutputDir)\translations" />
     </Target>
 </Project>

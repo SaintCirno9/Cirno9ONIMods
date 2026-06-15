@@ -30,8 +30,8 @@ public class ZonedSolidTransferArmZoneOverlay : OverlayModes.Mode
         return new List<LegendEntry>
         {
             new(
-                ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.MARKED,
-                ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.TOOLTIP,
+                ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.MARKED),
+                ZonedSolidTransferArmStrings.Text(ZonedSolidTransferArmStrings.UI.OVERLAYS.ZONE.TOOLTIP),
                 ZonedSolidTransferArmControl.ZoneColor)
         };
     }
