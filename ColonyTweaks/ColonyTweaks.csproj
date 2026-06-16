@@ -17,8 +17,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="PLib" Version="4.24.0" />
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.45" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Compile Remove="**\*.cs" />
-        <Compile Include="ModEntry.cs;BuildingStationPatch.cs;CrabPatch.cs;DoorPatch.cs;DreckoPatch.cs;DropPatch.cs;EffectPatch.cs;EggPatch.cs;ElementConsumerControl.cs;HatchPatch.cs;OvercrowdedPatch.cs;OxyfernPatch.cs;PowerTinkerPatch.cs;PumpPatch.cs;RonivansFridgePatch.cs;SnailPatch.cs;StorageControl.cs;StoragePatch.cs;Properties\AssemblyInfo.cs;STRINGS\UI.cs" />
+        <Compile Include="ModEntry.cs;ModConfig.cs;BuildingStationPatch.cs;CrabPatch.cs;DoorPatch.cs;DreckoPatch.cs;DropPatch.cs;DuplicantFoodDietPatch.cs;EffectPatch.cs;EggPatch.cs;ElementConsumerControl.cs;FabricatorQueuePatch.cs;HatchPatch.cs;OvercrowdedPatch.cs;OxyfernPatch.cs;PowerTinkerPatch.cs;PumpPatch.cs;RonivansFridgePatch.cs;SnailPatch.cs;StorageControl.cs;StoragePatch.cs;TimerSensorPatch.cs;TubeWormPatch.cs;Properties\AssemblyInfo.cs;STRINGS\UI.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -31,8 +36,17 @@
         <Reference Include="Assembly-CSharp-firstpass" Private="False">
             <HintPath>$(GameManagedDir)Assembly-CSharp-firstpass.dll</HintPath>
         </Reference>
+        <Reference Include="Newtonsoft.Json" Private="False">
+            <HintPath>$(GameManagedDir)Newtonsoft.Json.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.CoreModule" Private="False">
             <HintPath>$(GameManagedDir)UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.TextMeshPro" Private="False">
+            <HintPath>$(GameManagedDir)Unity.TextMeshPro.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UI" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.UI.dll</HintPath>
         </Reference>
     </ItemGroup>
 
@@ -40,7 +54,7 @@
         <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
     </Target>
 
-    <Target Name="CopyMod" AfterTargets="Build">
+    <Target Name="CopyMod" AfterTargets="MergeColonyTweaks">
         <Copy SourceFiles="@(ModMetadata)" DestinationFolder="$(TargetDir)" />
         <RemoveDir Directories="$(ModOutputDir)" Condition="Exists('$(ModOutputDir)')" />
         <MakeDir Directories="$(ModOutputDir)" />

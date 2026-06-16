@@ -53,7 +53,8 @@ namespace ColonyTweaks
 
             foreach (var storage in go.GetComponents<Storage>())
             {
-                if ((buildingDefPrefabID.Contains("StorageLocker") || IsSolidLoader(go)) && storage.storageFilters is not null)
+                if ((buildingDefPrefabID.Contains("StorageLocker") || buildingDefPrefabID is "StoragePod" || IsSolidLoader(go)) &&
+                    storage.storageFilters is not null)
                 {
                     storage.storageFilters.AddRange(neededFilter);
                     storage.storageFilters = storage.storageFilters.Distinct().ToList();

@@ -36,6 +36,7 @@ namespace ColonyTweaks
                     }
 
                     UpdateFoodStorageCapacity(buildingDef.PrefabID, complete);
+                    UpdateRoomConstraintTags(complete);
                 }
             }
         }
@@ -58,6 +59,11 @@ namespace ColonyTweaks
 
                 storage.capacityKg = originalCapacity * CapacityMultiplier;
             }
+        }
+
+        private static void UpdateRoomConstraintTags(GameObject complete)
+        {
+            complete.GetComponent<KPrefabID>().AddTag(RoomConstraints.ConstraintTags.KitchenRefrigerator);
         }
     }
 }
