@@ -7,6 +7,10 @@ using UnityEngine;
 
 namespace ZonedSolidTransferArm;
 
+// 已知行为：抓取逻辑不校验 world id，传送臂可跨世界（含其他星球、火箭内部）抓取区域内物品，此为有意设计。
+// 副作用：火箭内部世界被拆除后，落在其 Grid 区域内的区域格子（裸 int 索引）不会被清理，存档也会固化。
+// Grid 不缩小、IsValidCell 仍返回 true，这些格子会被持续扫描（数量少，性能可忽略）；若区域被新建火箭复用，臂会转而抓取新火箭内的物品。
+// 目前接受此行为，不做清理。如需精确化，可监听火箭内部世界销毁事件剔除对应格子。
 public class ZonedSolidTransferArmMod : UserMod2
 {
     public static PAction GlobalZoneAction { get; private set; }

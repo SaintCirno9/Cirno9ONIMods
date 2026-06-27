@@ -35,8 +35,28 @@ public static class ZonedSolidTransferArmGlobalZone
         }
     }
 
+    private sealed class TemporaryConstructionRecord
+    {
+        public readonly WeakReference<Building> Building;
+        public readonly HashSet<int> Cells;
+
+        public TemporaryConstructionRecord(Building building, IEnumerable<int> cells)
+        {
+            Building = new WeakReference<Building>(building);
+            Cells = new HashSet<int>();
+            foreach (int cell in cells)
+            {
+                if (Grid.IsValidCell(cell))
+                {
+                    Cells.Add(cell);
+                }
+            }
+        }
+    }
+
     private static readonly ConcurrentDictionary<int, byte> Cells = new();
     private static readonly ConcurrentDictionary<int, TemporaryZoneCell> TemporaryCells = new();
+    private static readonly List<TemporaryConstructionRecord> TemporaryConstructionRecords = new();
     private static readonly FieldInfo ConstructableFetchListField = AccessTools.Field(typeof(Constructable), "fetchList");
     private static bool temporaryConstructionZonesEnabled = true;
     private static bool temporaryClearZonesEnabled = true;
@@ -127,17 +147,26 @@ public static class ZonedSolidTransferArmGlobalZone
     {
         Cells.Clear();
         TemporaryCells.Clear();
+        lock (TemporaryConstructionRecords)
+        {
+            TemporaryConstructionRecords.Clear();
+        }
         temporaryConstructionZonesEnabled = true;
         temporaryClearZonesEnabled = true;
         temporarySyncScheduled = false;
         revision++;
     }
 
-    public static void AddTemporaryConstructionCells(IEnumerable<int> cells)
+    public static void AddTemporaryConstructionCells(Building building, IEnumerable<int> cells)
     {
         if (!temporaryConstructionZonesEnabled)
         {
             return;
+        }
+
+        lock (TemporaryConstructionRecords)
+        {
+            TemporaryConstructionRecords.Add(new TemporaryConstructionRecord(building, cells));
         }
 
         AddTemporaryCells(cells, TemporaryZoneSource.Construction, TemporaryConstructionZoneDuration);
@@ -213,6 +242,7 @@ public static class ZonedSolidTransferArmGlobalZone
     public static void RemoveExpiredTemporaryCells()
     {
         bool changed = false;
+        CleanupTemporaryConstructionRecords();
         foreach (KeyValuePair<int, TemporaryZoneCell> entry in TemporaryCells)
         {
             TemporaryZoneSource activeSources = GetActiveSources(entry.Key, entry.Value.Sources);
@@ -232,6 +262,28 @@ public static class ZonedSolidTransferArmGlobalZone
         if (changed)
         {
             NotifyChanged();
+        }
+    }
+
+    private static void CleanupTemporaryConstructionRecords()
+    {
+        lock (TemporaryConstructionRecords)
+        {
+            for (int i = TemporaryConstructionRecords.Count - 1; i >= 0; i--)
+            {
+                TemporaryConstructionRecord record = TemporaryConstructionRecords[i];
+                if (!record.Building.TryGetTarget(out Building building) || building == null)
+                {
+                    TemporaryConstructionRecords.RemoveAt(i);
+                    continue;
+                }
+
+                if (building.GetComponent<Constructable>() == null ||
+                    building.GetComponent<BuildingUnderConstruction>() == null)
+                {
+                    TemporaryConstructionRecords.RemoveAt(i);
+                }
+            }
         }
     }
 
@@ -262,6 +314,11 @@ public static class ZonedSolidTransferArmGlobalZone
             return false;
         }
 
+        if (HasActiveTemporaryConstructionAtCell(cell))
+        {
+            return true;
+        }
+
         for (int layer = 0; layer < (int)ObjectLayer.NumLayers; layer++)
         {
             GameObject gameObject = Grid.Objects[cell, layer];
@@ -274,6 +331,32 @@ public static class ZonedSolidTransferArmGlobalZone
             if (constructable != null && ConstructableFetchListField.GetValue(constructable) != null)
             {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool HasActiveTemporaryConstructionAtCell(int cell)
+    {
+        lock (TemporaryConstructionRecords)
+        {
+            foreach (TemporaryConstructionRecord record in TemporaryConstructionRecords)
+            {
+                if (!record.Building.TryGetTarget(out Building building) || building == null)
+                {
+                    continue;
+                }
+
+                if (building.GetComponent<Constructable>() == null ||
+                    building.GetComponent<BuildingUnderConstruction>() == null)
+                {
+                    continue;
+                }
+
+                if (record.Cells.Contains(cell))
+                {
+                    return true;
+                }
             }
         }
         return false;

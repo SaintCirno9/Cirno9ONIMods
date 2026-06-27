@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -11,7 +12,7 @@ public static class ZonedSolidTransferArmPatches
 {
     private const float FetchChoreCacheDuration = 0.5f;
     private static readonly Dictionary<SolidTransferArm, CachedFetchChores> CachedFetchChoresByArm = new();
-    private static readonly Dictionary<SolidTransferArm, PickupableAvailability> PickupableAvailabilityByArm = new();
+    private static readonly ConcurrentDictionary<SolidTransferArm, PickupableAvailability> PickupableAvailabilityByArm = new();
     private static readonly SharedGlobalZonePickupablesCache SharedGlobalZonePickupables = new();
 
     private sealed class CachedFetchChores
@@ -25,13 +26,12 @@ public static class ZonedSolidTransferArmPatches
 
     private sealed class PickupableAvailability
     {
-        public readonly HashSet<Tag> PrefabTags = new();
-        public bool HasGarbage;
+        public readonly HashSet<Tag> PrefabTags;
+        public readonly bool HasGarbage;
 
-        public void Rebuild(List<Pickupable> pickupables)
+        public PickupableAvailability(List<Pickupable> pickupables)
         {
-            PrefabTags.Clear();
-            HasGarbage = false;
+            PrefabTags = new HashSet<Tag>();
             foreach (Pickupable pickupable in pickupables)
             {
                 if (pickupable?.KPrefabID == null)
@@ -97,17 +97,6 @@ public static class ZonedSolidTransferArmPatches
         }
 
         return cachedFetchChores;
-    }
-
-    private static PickupableAvailability GetPickupableAvailability(SolidTransferArm arm)
-    {
-        if (!PickupableAvailabilityByArm.TryGetValue(arm, out PickupableAvailability pickupableAvailability))
-        {
-            pickupableAvailability = new PickupableAvailability();
-            PickupableAvailabilityByArm[arm] = pickupableAvailability;
-        }
-
-        return pickupableAvailability;
     }
 
     private static bool UsesOnlyGlobalZone(SolidTransferArm arm)
@@ -285,7 +274,7 @@ public static class ZonedSolidTransferArmPatches
         public static void Prefix(SolidTransferArm __instance)
         {
             CachedFetchChoresByArm.Remove(__instance);
-            PickupableAvailabilityByArm.Remove(__instance);
+            PickupableAvailabilityByArm.TryRemove(__instance, out _);
         }
     }
 
@@ -300,7 +289,7 @@ public static class ZonedSolidTransferArmPatches
                 return;
             }
 
-            ZonedSolidTransferArmGlobalZone.AddTemporaryConstructionCells(building.PlacementCells);
+            ZonedSolidTransferArmGlobalZone.AddTemporaryConstructionCells(building, building.PlacementCells);
         }
     }
 
@@ -517,7 +506,7 @@ public static class ZonedSolidTransferArmPatches
                 VisitPickupablesInZoneCells(arm, zoneCells, pickupables);
             }
 
-            GetPickupableAvailability(arm).Rebuild(pickupables);
+            PickupableAvailabilityByArm[arm] = new PickupableAvailability(pickupables);
 
             oldReachable.Recycle();
             return true;
