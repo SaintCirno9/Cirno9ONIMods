@@ -242,10 +242,10 @@ public static class ZonedSolidTransferArmGlobalZone
     public static void RemoveExpiredTemporaryCells()
     {
         bool changed = false;
-        CleanupTemporaryConstructionRecords();
+        HashSet<int> activeConstructionCells = CollectActiveTemporaryConstructionCells();
         foreach (KeyValuePair<int, TemporaryZoneCell> entry in TemporaryCells)
         {
-            TemporaryZoneSource activeSources = GetActiveSources(entry.Key, entry.Value.Sources);
+            TemporaryZoneSource activeSources = GetActiveSources(entry.Key, entry.Value.Sources, activeConstructionCells);
             if (activeSources == TemporaryZoneSource.None)
             {
                 if (TemporaryCells.TryRemove(entry.Key, out _))
@@ -265,8 +265,9 @@ public static class ZonedSolidTransferArmGlobalZone
         }
     }
 
-    private static void CleanupTemporaryConstructionRecords()
+    private static HashSet<int> CollectActiveTemporaryConstructionCells()
     {
+        HashSet<int> activeCells = new();
         lock (TemporaryConstructionRecords)
         {
             for (int i = TemporaryConstructionRecords.Count - 1; i >= 0; i--)
@@ -278,13 +279,19 @@ public static class ZonedSolidTransferArmGlobalZone
                     continue;
                 }
 
-                if (building.GetComponent<Constructable>() == null ||
-                    building.GetComponent<BuildingUnderConstruction>() == null)
+                Constructable constructable = building.GetComponent<Constructable>();
+                if (constructable == null ||
+                    building.GetComponent<BuildingUnderConstruction>() == null ||
+                    ConstructableFetchListField.GetValue(constructable) == null)
                 {
                     TemporaryConstructionRecords.RemoveAt(i);
+                    continue;
                 }
+
+                activeCells.UnionWith(record.Cells);
             }
         }
+        return activeCells;
     }
 
     private static void NotifyChanged()
@@ -293,10 +300,10 @@ public static class ZonedSolidTransferArmGlobalZone
         ZonedSolidTransferArmControl.OnGlobalZoneChanged();
     }
 
-    private static TemporaryZoneSource GetActiveSources(int cell, TemporaryZoneSource sources)
+    private static TemporaryZoneSource GetActiveSources(int cell, TemporaryZoneSource sources, HashSet<int> activeConstructionCells)
     {
         TemporaryZoneSource activeSources = TemporaryZoneSource.None;
-        if ((sources & TemporaryZoneSource.Construction) != 0 && HasConstructableNeedingMaterialsAtCell(cell))
+        if ((sources & TemporaryZoneSource.Construction) != 0 && HasConstructableNeedingMaterialsAtCell(cell, activeConstructionCells))
         {
             activeSources |= TemporaryZoneSource.Construction;
         }
@@ -307,14 +314,14 @@ public static class ZonedSolidTransferArmGlobalZone
         return activeSources;
     }
 
-    private static bool HasConstructableNeedingMaterialsAtCell(int cell)
+    private static bool HasConstructableNeedingMaterialsAtCell(int cell, HashSet<int> activeConstructionCells)
     {
         if (!Grid.IsValidCell(cell))
         {
             return false;
         }
 
-        if (HasActiveTemporaryConstructionAtCell(cell))
+        if (activeConstructionCells.Contains(cell))
         {
             return true;
         }
@@ -331,32 +338,6 @@ public static class ZonedSolidTransferArmGlobalZone
             if (constructable != null && ConstructableFetchListField.GetValue(constructable) != null)
             {
                 return true;
-            }
-        }
-        return false;
-    }
-
-    private static bool HasActiveTemporaryConstructionAtCell(int cell)
-    {
-        lock (TemporaryConstructionRecords)
-        {
-            foreach (TemporaryConstructionRecord record in TemporaryConstructionRecords)
-            {
-                if (!record.Building.TryGetTarget(out Building building) || building == null)
-                {
-                    continue;
-                }
-
-                if (building.GetComponent<Constructable>() == null ||
-                    building.GetComponent<BuildingUnderConstruction>() == null)
-                {
-                    continue;
-                }
-
-                if (record.Cells.Contains(cell))
-                {
-                    return true;
-                }
             }
         }
         return false;
