@@ -1,5 +1,6 @@
 GameSource/
 ExternalModSources/
+.tmp/
 
 [Bb]in/
 [Oo]bj/
