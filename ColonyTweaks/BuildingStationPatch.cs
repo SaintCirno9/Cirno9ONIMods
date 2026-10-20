@@ -7,6 +7,9 @@ namespace ColonyTweaks
 {
     public class BuildingStationPatch
     {
+        private const float CritterCondoEffectDuration = 1800f;
+        private const float CritterCondoHappiness = 3f;
+
         [HarmonyPatch(typeof(Db), nameof(Db.Initialize))]
         public class DbInitializePatch
         {
@@ -43,6 +46,33 @@ namespace ColonyTweaks
             public static void Postfix(GameObject go)
             {
                 DoubleRanchedTimeRemaining(go);
+            }
+        }
+
+        [HarmonyPatch(typeof(CritterCondoConfig), nameof(CritterCondoConfig.DoPostConfigureComplete))]
+        public class CritterCondoConfigDoPostConfigureCompletePatch
+        {
+            public static void Postfix(GameObject go)
+            {
+                ApplyCritterCondoEffect(go);
+            }
+        }
+
+        [HarmonyPatch(typeof(UnderwaterCritterCondoConfig), nameof(UnderwaterCritterCondoConfig.DoPostConfigureComplete))]
+        public class UnderwaterCritterCondoConfigDoPostConfigureCompletePatch
+        {
+            public static void Postfix(GameObject go)
+            {
+                ApplyCritterCondoEffect(go);
+            }
+        }
+
+        [HarmonyPatch(typeof(AirBorneCritterCondoConfig), nameof(AirBorneCritterCondoConfig.DoPostConfigureComplete))]
+        public class AirBorneCritterCondoConfigDoPostConfigureCompletePatch
+        {
+            public static void Postfix(GameObject go)
+            {
+                ApplyCritterCondoEffect(go);
             }
         }
 
@@ -120,6 +150,16 @@ namespace ColonyTweaks
                 effect.Add(new AttributeModifier(happinessId, 3f, modifierName));
             }
             effect.Add(new AttributeModifier(scaleGrowthId, 0.5f, modifierName, true));
+        }
+
+        private static void ApplyCritterCondoEffect(GameObject go)
+        {
+            var effect = Db.Get().effects.Get(go.GetDef<CritterCondo.Def>().effectId);
+            var happinessId = Db.Get().CritterAttributes.Happiness.Id;
+            effect.duration = CritterCondoEffectDuration;
+            effect.SelfModifiers.RemoveAll(modifier => modifier.AttributeId == happinessId);
+            effect.Add(new AttributeModifier(happinessId, CritterCondoHappiness,
+                CREATURES.MODIFIERS.CRITTERCONDOINTERACTEFFECT.NAME));
         }
 
         private static void DoubleRanchedTimeRemaining(GameObject go)
