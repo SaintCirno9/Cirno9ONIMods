@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: BottleEmptierThreshold\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: SaintCirno9\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Application: Oxygen Not Included\n"
+
+#. BottleEmptierThreshold.BottleEmptierThresholdStrings.UI.UISIDESCREENS.BOTTLEEMPTIERTHRESHOLD.TITLE
+msgctxt "BottleEmptierThreshold.BottleEmptierThresholdStrings.UI.UISIDESCREENS.BOTTLEEMPTIERTHRESHOLD.TITLE"
+msgid "抽出器补充设置"
+msgstr "抽出器补充设置"
+
+#. BottleEmptierThreshold.BottleEmptierThresholdStrings.UI.UISIDESCREENS.BOTTLEEMPTIERTHRESHOLD.TOOLTIP
+msgctxt "BottleEmptierThreshold.BottleEmptierThresholdStrings.UI.UISIDESCREENS.BOTTLEEMPTIERTHRESHOLD.TOOLTIP"
+msgid "当内部存量低于该百分比时开始补充。"
+msgstr "当内部存量低于该百分比时开始补充。"
