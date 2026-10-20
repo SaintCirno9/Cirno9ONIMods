@@ -1,5 +1,5 @@
 APIVersion: 2
-supportedContent: ALL
+requiredDlcIds:
+forbiddenDlcIds:
 minimumSupportedBuild: 697549
 version: "1.0.0"
-author: "SaintCirno9"
