@@ -37,7 +37,7 @@ namespace ColonyTweaks
 
         private static void AddDuplicantFoodToAll(Dictionary<Tag, Diet> diets)
         {
-            if (diets == null)
+            if (!ModConfig.Instance.EnableDuplicantFoodDietPatch || diets == null)
             {
                 return;
             }
