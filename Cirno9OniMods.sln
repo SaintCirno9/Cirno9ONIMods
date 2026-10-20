@@ -28,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyTweaks", "ColonyTweak
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryTemperatureLimit", "DeliveryTemperatureLimit\DeliveryTemperatureLimit.csproj", "{8C9623EF-0499-4143-83A9-AC79F08DC801}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomizeBuildingsCrashFix", "CustomizeBuildingsCrashFix\CustomizeBuildingsCrashFix.csproj", "{3D9B01C8-02BF-4879-831F-C0059555110A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporaryFixes", "TemporaryFixes\TemporaryFixes.csproj", "{3D9B01C8-02BF-4879-831F-C0059555110A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottleEmptierThreshold", "BottleEmptierThreshold\BottleEmptierThreshold.csproj", "{1B6D28DB-8A58-4DCB-9B44-FBE7B89A7C4C}"
 EndProject
