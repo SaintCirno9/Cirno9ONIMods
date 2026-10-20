@@ -1,0 +1,5 @@
+APIVersion: 2
+requiredDlcIds:
+forbiddenDlcIds:
+minimumSupportedBuild: 596100
+version: "1.0.0"
