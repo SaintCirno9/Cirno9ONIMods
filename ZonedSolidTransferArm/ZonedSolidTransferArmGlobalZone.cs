@@ -220,9 +220,11 @@ public static class ZonedSolidTransferArmGlobalZone
     public static void SyncTemporaryCells()
     {
         temporarySyncScheduled = false;
-        RemoveExpiredTemporaryCells();
-        ZonedSolidTransferArmControl.OnGlobalZoneChanged();
-        revision++;
+        // 清理阶段有变化时已经通知过，这里只补上新增临时格子的那一次通知。
+        if (!RemoveExpiredTemporaryCells())
+        {
+            NotifyChanged();
+        }
     }
 
     private static void ScheduleTemporarySync()
@@ -239,7 +241,7 @@ public static class ZonedSolidTransferArmGlobalZone
             _ => SyncTemporaryCells());
     }
 
-    public static void RemoveExpiredTemporaryCells()
+    public static bool RemoveExpiredTemporaryCells()
     {
         bool changed = false;
         HashSet<int> activeConstructionCells = CollectActiveTemporaryConstructionCells();
@@ -263,6 +265,7 @@ public static class ZonedSolidTransferArmGlobalZone
         {
             NotifyChanged();
         }
+        return changed;
     }
 
     private static HashSet<int> CollectActiveTemporaryConstructionCells()
@@ -431,8 +434,10 @@ public static class ZonedSolidTransferArmGlobalZone
                 TemporaryCells[cell] = new TemporaryZoneCell((TemporaryZoneSource)sources, expireTime);
             }
         }
-        RemoveExpiredTemporaryCells();
-        NotifyChanged();
+        if (!RemoveExpiredTemporaryCells())
+        {
+            NotifyChanged();
+        }
     }
 
     public static void RemoveInvalidCells()

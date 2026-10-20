@@ -72,6 +72,26 @@ msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZON
 msgid "Let this auto sweeper use only its own zone and ignore the global sweeper zone."
 msgstr "让此自动清扫器只使用自己的独立区域，不再考虑全局清扫器区域。"
 
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLECROSSWORLDBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLECROSSWORLDBUTTON"
+msgid "Enable Cross-World"
+msgstr "启用跨星球"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLECROSSWORLDBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLECROSSWORLDBUTTONTOOLTIP"
+msgid "Let this auto sweeper also work on global zone cells on other asteroids and inside rockets. Rocket interiors count as separate worlds even when landed. This sweeper's own zone is not affected."
+msgstr "让此自动清扫器也处理其他星球和火箭内部的全局区域格子。火箭内部即使已着陆也算独立世界。不影响此清扫器自己的独立区域。"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLECROSSWORLDBUTTON
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLECROSSWORLDBUTTON"
+msgid "Disable Cross-World"
+msgstr "关闭跨星球"
+
+#. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLECROSSWORLDBUTTONTOOLTIP
+msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.DISABLECROSSWORLDBUTTONTOOLTIP"
+msgid "Let this auto sweeper only use global zone cells in its own world. This sweeper's own zone is not affected."
+msgstr "让此自动清扫器只使用所在世界内的全局区域格子。不影响此清扫器自己的独立区域。"
+
 #. ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEFILTERBUTTON
 msgctxt "ZonedSolidTransferArm.ZonedSolidTransferArmStrings.UI.UISIDESCREENS.ZONEDSOLIDTRANSFERARMCONTROL.ENABLEFILTERBUTTON"
 msgid "Enable Filter"

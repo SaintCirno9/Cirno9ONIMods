@@ -51,7 +51,7 @@ public class ZonedSolidTransferArmTemperatureFilter : KMonoBehaviour
             return true;
         }
 
-        PrimaryElement primaryElement = pickupable.GetComponent<PrimaryElement>();
+        PrimaryElement primaryElement = pickupable.PrimaryElement;
         return primaryElement != null && range.Contains(primaryElement.Temperature);
     }
 

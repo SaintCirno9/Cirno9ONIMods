@@ -14,14 +14,27 @@ public static class ZonedSolidTransferArmPatches
     private static readonly Dictionary<SolidTransferArm, CachedFetchChores> CachedFetchChoresByArm = new();
     private static readonly ConcurrentDictionary<SolidTransferArm, PickupableAvailability> PickupableAvailabilityByArm = new();
     private static readonly SharedGlobalZonePickupablesCache SharedGlobalZonePickupables = new();
+    private static readonly SharedGlobalZoneFetchChoresCache SharedGlobalZoneFetchChores = new();
 
     private sealed class CachedFetchChores
     {
         public HashSet<int> ZoneCells;
         public int ZoneCellCount;
         public float NextRefreshTime;
+        public int GlobalZoneBuildVersion = -1;
         public readonly List<FetchChore> FetchChores = new();
         public readonly HashSet<FetchChore> SeenFetchChores = new();
+    }
+
+    // 只在主线程的 Sim 阶段读写，同一批次内所有使用全局区域的机械臂共用一次扫描结果。
+    private sealed class SharedGlobalZoneFetchChoresCache
+    {
+        public int GlobalZoneRevision = -1;
+        public float NextRefreshTime;
+        public int BuildVersion;
+        public readonly List<FetchChore> FetchChores = new();
+        public readonly HashSet<FetchChore> SeenFetchChores = new();
+        public readonly Dictionary<int, List<FetchChore>> FetchChoresByWorld = new();
     }
 
     private sealed class PickupableAvailability
@@ -50,21 +63,21 @@ public static class ZonedSolidTransferArmPatches
 
     private sealed class FetchChoreCacheBuildContext
     {
-        public readonly SolidTransferArm Arm;
-        public readonly HashSet<int> ZoneCells;
+        public readonly Func<int, bool> ContainsCell;
         public readonly List<FetchChore> FetchChores;
         public readonly HashSet<FetchChore> SeenFetchChores;
+        public readonly Dictionary<int, List<FetchChore>> FetchChoresByWorld;
 
         public FetchChoreCacheBuildContext(
-            SolidTransferArm arm,
-            HashSet<int> zoneCells,
+            Func<int, bool> containsCell,
             List<FetchChore> fetchChores,
-            HashSet<FetchChore> seenFetchChores)
+            HashSet<FetchChore> seenFetchChores,
+            Dictionary<int, List<FetchChore>> fetchChoresByWorld = null)
         {
-            Arm = arm;
-            ZoneCells = zoneCells;
+            ContainsCell = containsCell;
             FetchChores = fetchChores;
             SeenFetchChores = seenFetchChores;
+            FetchChoresByWorld = fetchChoresByWorld;
         }
     }
 
@@ -73,17 +86,24 @@ public static class ZonedSolidTransferArmPatches
         public readonly object SyncRoot = new();
         public int GlobalZoneRevision = -1;
         public float NextRefreshTime;
-        public List<Pickupable> Pickupables = new();
+        public SharedGlobalZonePickupablesSnapshot Snapshot = new();
+    }
+
+    // 工作线程会在锁外读取，构建完成后整体替换引用，发布后不再修改。
+    private sealed class SharedGlobalZonePickupablesSnapshot
+    {
+        public readonly List<Pickupable> Pickupables = new();
+        public readonly Dictionary<int, List<Pickupable>> PickupablesByWorld = new();
     }
 
     private sealed class SharedGlobalPickupVisitorContext
     {
-        public readonly List<Pickupable> Pickupables;
+        public readonly SharedGlobalZonePickupablesSnapshot Snapshot;
         public readonly HashSet<Pickupable> SeenPickupables;
 
-        public SharedGlobalPickupVisitorContext(List<Pickupable> pickupables, HashSet<Pickupable> seenPickupables)
+        public SharedGlobalPickupVisitorContext(SharedGlobalZonePickupablesSnapshot snapshot, HashSet<Pickupable> seenPickupables)
         {
-            Pickupables = pickupables;
+            Snapshot = snapshot;
             SeenPickupables = seenPickupables;
         }
     }
@@ -375,10 +395,13 @@ public static class ZonedSolidTransferArmPatches
             FetchChore chore,
             SolidTransferArm arm)
         {
+            // 可用性记录只由区域模式的 AsyncUpdate 写入，此时物品列表已按拾取和温度筛选过，不必逐任务重复判断。
+            bool prefiltered = PickupableAvailabilityByArm.ContainsKey(arm);
             foreach (Pickupable pickupable in pickupables)
             {
-                if (ZonedSolidTransferArmPickFilter.AllowsPickup(arm, pickupable) &&
-                    ZonedSolidTransferArmTemperatureFilter.AllowsPickup(arm, pickupable) &&
+                if ((prefiltered ||
+                     (ZonedSolidTransferArmPickFilter.AllowsPickup(arm, pickupable) &&
+                      ZonedSolidTransferArmTemperatureFilter.AllowsPickup(arm, pickupable))) &&
                     FetchManager.IsFetchablePickup(pickupable, chore, destination))
                 {
                     return pickupable;
@@ -469,6 +492,7 @@ public static class ZonedSolidTransferArmPatches
         {
             if (!ZonedSolidTransferArmControl.TryGetZoneSnapshot(__instance, out HashSet<int> zoneCells))
             {
+                PickupableAvailabilityByArm.TryRemove(__instance, out _);
                 return true;
             }
 
@@ -490,7 +514,7 @@ public static class ZonedSolidTransferArmPatches
             pickupables.Clear();
             if (control != null && UsesGlobalZone(arm))
             {
-                FillPickupablesFromSharedGlobalZone(arm, pickupables);
+                FillPickupablesFromSharedGlobalZone(arm, control, pickupables);
             }
 
             if (control is { CellCount: > 0 })
@@ -512,10 +536,21 @@ public static class ZonedSolidTransferArmPatches
             return true;
         }
 
-        private static void FillPickupablesFromSharedGlobalZone(SolidTransferArm arm, List<Pickupable> pickupables)
+        private static void FillPickupablesFromSharedGlobalZone(
+            SolidTransferArm arm,
+            ZonedSolidTransferArmControl control,
+            List<Pickupable> pickupables)
         {
+            SharedGlobalZonePickupablesSnapshot snapshot = GetSharedGlobalZonePickupables();
+            List<Pickupable> sharedPickupables = snapshot.Pickupables;
+            if (!control.AllowsCrossWorld &&
+                !snapshot.PickupablesByWorld.TryGetValue(control.WorldId, out sharedPickupables))
+            {
+                return;
+            }
+
             int carrierID = ((KPrefabID)KPrefabIDField.GetValue(arm)).InstanceID;
-            foreach (Pickupable pickupable in GetSharedGlobalZonePickupables())
+            foreach (Pickupable pickupable in sharedPickupables)
             {
                 if (CanBePickedUpByZonedTransferArm(pickupable, carrierID) &&
                     ZonedSolidTransferArmPickFilter.AllowsPickup(arm, pickupable) &&
@@ -645,7 +680,7 @@ public static class ZonedSolidTransferArmPatches
             }
         }
 
-        private static IEnumerable<Pickupable> GetSharedGlobalZonePickupables()
+        private static SharedGlobalZonePickupablesSnapshot GetSharedGlobalZonePickupables()
         {
             float currentGameTime = GameClock.Instance?.GetTime() ?? 0f;
             int globalZoneRevision = ZonedSolidTransferArmGlobalZone.Revision;
@@ -662,16 +697,16 @@ public static class ZonedSolidTransferArmPatches
                 }
             }
 
-            return SharedGlobalZonePickupables.Pickupables;
+            return SharedGlobalZonePickupables.Snapshot;
         }
 
         private static void RebuildSharedGlobalZonePickupables(float currentGameTime, int globalZoneRevision)
         {
-            List<Pickupable> pickupables = new();
+            SharedGlobalZonePickupablesSnapshot snapshot = new();
             HashSet<Pickupable> seenPickupables = new();
 
             HashSet<int> visitedNodes = new();
-            SharedGlobalPickupVisitorContext sharedContext = new(pickupables, seenPickupables);
+            SharedGlobalPickupVisitorContext sharedContext = new(snapshot, seenPickupables);
             foreach (int cell in ZonedSolidTransferArmGlobalZone.MarkedCells)
             {
                 if (!Grid.IsValidCell(cell))
@@ -706,7 +741,7 @@ public static class ZonedSolidTransferArmPatches
                     sharedContext);
             }
 
-            SharedGlobalZonePickupables.Pickupables = pickupables;
+            SharedGlobalZonePickupables.Snapshot = snapshot;
             SharedGlobalZonePickupables.GlobalZoneRevision = globalZoneRevision;
             SharedGlobalZonePickupables.NextRefreshTime = currentGameTime + FetchChoreCacheDuration;
         }
@@ -732,7 +767,16 @@ public static class ZonedSolidTransferArmPatches
 
             if (state.SeenPickupables.Add(pickupable))
             {
-                state.Pickupables.Add(pickupable);
+                state.Snapshot.Pickupables.Add(pickupable);
+                int worldId = Grid.IsValidCell(pickupable.cachedCell)
+                    ? Grid.WorldIdx[pickupable.cachedCell]
+                    : ClusterManager.INVALID_WORLD_IDX;
+                if (!state.Snapshot.PickupablesByWorld.TryGetValue(worldId, out List<Pickupable> worldPickupables))
+                {
+                    worldPickupables = new List<Pickupable>();
+                    state.Snapshot.PickupablesByWorld[worldId] = worldPickupables;
+                }
+                worldPickupables.Add(pickupable);
             }
 
             return Util.IterationInstruction.Continue;
@@ -760,6 +804,7 @@ public static class ZonedSolidTransferArmPatches
             AccessTools.Field(typeof(ChoreConsumer), "lastSuccessfulPreconditionSnapshot");
         private static readonly MethodInfo ChooseChoreMethod = AccessTools.Method(typeof(ChoreConsumer), "ChooseChore");
         private const int ScenePartitionerNodeSize = 16;
+        private static readonly List<FetchChore> EmptyFetchChores = new();
 
         public static bool Prefix(ChoreConsumer __instance, ref Chore.Precondition.Context out_context, ref bool __result)
         {
@@ -812,33 +857,104 @@ public static class ZonedSolidTransferArmPatches
         {
             CachedFetchChores cachedFetchChores = GetCachedFetchChores(arm);
             float currentGameTime = GameClock.Instance?.GetTime() ?? 0f;
-            bool needsRefresh = cachedFetchChores.ZoneCells != zoneCells ||
-                cachedFetchChores.ZoneCellCount != zoneCells.Count ||
-                currentGameTime >= cachedFetchChores.NextRefreshTime;
-            if (needsRefresh)
+            ZonedSolidTransferArmControl control = arm.GetComponent<ZonedSolidTransferArmControl>();
+            if (control == null || !control.UsesGlobalZone())
             {
-                RebuildFetchChoreCache(arm, zoneCells, cachedFetchChores, currentGameTime);
+                if (cachedFetchChores.ZoneCells != zoneCells ||
+                    cachedFetchChores.ZoneCellCount != zoneCells.Count ||
+                    currentGameTime >= cachedFetchChores.NextRefreshTime)
+                {
+                    RebuildFetchChoreCache(zoneCells, zoneCells, null, cachedFetchChores, currentGameTime);
+                }
+
+                return cachedFetchChores.FetchChores;
+            }
+
+            SharedGlobalZoneFetchChoresCache sharedFetchChores = GetSharedGlobalZoneFetchChores(currentGameTime);
+            List<FetchChore> globalFetchChores = sharedFetchChores.FetchChores;
+            if (!control.AllowsCrossWorld &&
+                !sharedFetchChores.FetchChoresByWorld.TryGetValue(control.WorldId, out globalFetchChores))
+            {
+                globalFetchChores = EmptyFetchChores;
+            }
+
+            if (control.CellCount == 0)
+            {
+                return globalFetchChores;
+            }
+
+            if (cachedFetchChores.ZoneCells != zoneCells ||
+                cachedFetchChores.ZoneCellCount != zoneCells.Count ||
+                cachedFetchChores.GlobalZoneBuildVersion != sharedFetchChores.BuildVersion ||
+                currentGameTime >= cachedFetchChores.NextRefreshTime)
+            {
+                RebuildFetchChoreCache(control.Cells, zoneCells, globalFetchChores, cachedFetchChores, currentGameTime);
+                cachedFetchChores.GlobalZoneBuildVersion = sharedFetchChores.BuildVersion;
             }
 
             return cachedFetchChores.FetchChores;
         }
 
+        private static SharedGlobalZoneFetchChoresCache GetSharedGlobalZoneFetchChores(float currentGameTime)
+        {
+            SharedGlobalZoneFetchChoresCache cache = SharedGlobalZoneFetchChores;
+            int globalZoneRevision = ZonedSolidTransferArmGlobalZone.Revision;
+            if (cache.GlobalZoneRevision == globalZoneRevision && currentGameTime < cache.NextRefreshTime)
+            {
+                return cache;
+            }
+
+            cache.FetchChores.Clear();
+            cache.SeenFetchChores.Clear();
+            cache.FetchChoresByWorld.Clear();
+            VisitFetchChoresInCells(
+                ZonedSolidTransferArmGlobalZone.MarkedCells,
+                new FetchChoreCacheBuildContext(
+                    ZonedSolidTransferArmGlobalZone.ContainsCell,
+                    cache.FetchChores,
+                    cache.SeenFetchChores,
+                    cache.FetchChoresByWorld));
+            cache.GlobalZoneRevision = globalZoneRevision;
+            cache.NextRefreshTime = currentGameTime + FetchChoreCacheDuration;
+            cache.BuildVersion++;
+            return cache;
+        }
+
         private static void RebuildFetchChoreCache(
-            SolidTransferArm arm,
+            IEnumerable<int> scanCells,
             HashSet<int> zoneCells,
+            List<FetchChore> seedFetchChores,
             CachedFetchChores cachedFetchChores,
             float currentGameTime)
         {
             cachedFetchChores.FetchChores.Clear();
             cachedFetchChores.SeenFetchChores.Clear();
+            if (seedFetchChores != null)
+            {
+                foreach (FetchChore fetchChore in seedFetchChores)
+                {
+                    if (cachedFetchChores.SeenFetchChores.Add(fetchChore))
+                    {
+                        cachedFetchChores.FetchChores.Add(fetchChore);
+                    }
+                }
+            }
 
+            VisitFetchChoresInCells(
+                scanCells,
+                new FetchChoreCacheBuildContext(
+                    zoneCells.Contains,
+                    cachedFetchChores.FetchChores,
+                    cachedFetchChores.SeenFetchChores));
+            cachedFetchChores.ZoneCells = zoneCells;
+            cachedFetchChores.ZoneCellCount = zoneCells.Count;
+            cachedFetchChores.NextRefreshTime = currentGameTime + FetchChoreCacheDuration;
+        }
+
+        private static void VisitFetchChoresInCells(IEnumerable<int> cells, FetchChoreCacheBuildContext context)
+        {
             HashSet<int> visitedNodes = new();
-            FetchChoreCacheBuildContext context = new(
-                arm,
-                zoneCells,
-                cachedFetchChores.FetchChores,
-                cachedFetchChores.SeenFetchChores);
-            foreach (int cell in zoneCells)
+            foreach (int cell in cells)
             {
                 if (!Grid.IsValidCell(cell))
                 {
@@ -863,10 +979,6 @@ public static class ZonedSolidTransferArmPatches
                     VisitFetchChoreCacheBuilder,
                     context);
             }
-
-            cachedFetchChores.ZoneCells = zoneCells;
-            cachedFetchChores.ZoneCellCount = zoneCells.Count;
-            cachedFetchChores.NextRefreshTime = currentGameTime + FetchChoreCacheDuration;
         }
 
         private static Util.IterationInstruction VisitFetchChoreCacheBuilder(object obj, FetchChoreCacheBuildContext context)
@@ -877,9 +989,19 @@ public static class ZonedSolidTransferArmPatches
             }
 
             int cell = Grid.PosToCell(fetchChore.gameObject);
-            if (context.ZoneCells.Contains(cell) && context.SeenFetchChores.Add(fetchChore))
+            if (context.ContainsCell(cell) && context.SeenFetchChores.Add(fetchChore))
             {
                 context.FetchChores.Add(fetchChore);
+                if (context.FetchChoresByWorld != null)
+                {
+                    int worldId = Grid.IsValidCell(cell) ? Grid.WorldIdx[cell] : ClusterManager.INVALID_WORLD_IDX;
+                    if (!context.FetchChoresByWorld.TryGetValue(worldId, out List<FetchChore> worldFetchChores))
+                    {
+                        worldFetchChores = new List<FetchChore>();
+                        context.FetchChoresByWorld[worldId] = worldFetchChores;
+                    }
+                    worldFetchChores.Add(fetchChore);
+                }
             }
 
             return Util.IterationInstruction.Continue;

@@ -25,6 +25,10 @@ public static class ZonedSolidTransferArmStrings
                 public static LocString ENABLEGLOBALZONEBUTTONTOOLTIP = "Let this auto sweeper treat the global sweeper zone as part of its working zone.";
                 public static LocString DISABLEGLOBALZONEBUTTON = "Disable Global Zone";
                 public static LocString DISABLEGLOBALZONEBUTTONTOOLTIP = "Let this auto sweeper use only its own zone and ignore the global sweeper zone.";
+                public static LocString ENABLECROSSWORLDBUTTON = "Enable Cross-World";
+                public static LocString ENABLECROSSWORLDBUTTONTOOLTIP = "Let this auto sweeper also work on global zone cells on other asteroids and inside rockets. Rocket interiors count as separate worlds even when landed. This sweeper's own zone is not affected.";
+                public static LocString DISABLECROSSWORLDBUTTON = "Disable Cross-World";
+                public static LocString DISABLECROSSWORLDBUTTONTOOLTIP = "Let this auto sweeper only use global zone cells in its own world. This sweeper's own zone is not affected.";
                 public static LocString ENABLEFILTERBUTTON = "Enable Filter";
                 public static LocString ENABLEFILTERBUTTONTOOLTIP = "Let this auto sweeper only pick up items allowed by the filter.";
                 public static LocString DISABLEFILTERBUTTON = "Disable Filter";
