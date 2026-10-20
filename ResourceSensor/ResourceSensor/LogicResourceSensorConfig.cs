@@ -33,7 +33,18 @@ public class LogicResourceSensorConfig : IBuildingConfig
 		Storage storage = go.AddOrGet<Storage>();
 		storage.allowItemRemoval = false;
 		storage.showDescriptor = false;
-		storage.storageFilters = STORAGEFILTERS.FOOD.Concat(STORAGEFILTERS.NOT_EDIBLE_SOLIDS).ToList();
+		storage.storageFilters = STORAGEFILTERS.FOOD
+			.Concat(STORAGEFILTERS.NOT_EDIBLE_SOLIDS)
+			.Concat(new List<Tag>
+			{
+				GameTags.Liquid,
+				GameTags.LiquidSource,
+				GameTags.GasSource,
+				GameTags.Breathable,
+				GameTags.Unbreathable
+			})
+			.Distinct()
+			.ToList();
 		storage.allowSettingOnlyFetchMarkedItems = false;
 		storage.showInUI = true;
 		storage.showCapacityStatusItem = false;
