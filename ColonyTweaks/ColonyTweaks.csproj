@@ -23,7 +23,7 @@
 
     <ItemGroup>
         <Compile Remove="**\*.cs" />
-        <Compile Include="ModEntry.cs;ModConfig.cs;BuildingStationPatch.cs;CrabPatch.cs;DoorPatch.cs;DreckoPatch.cs;DropPatch.cs;DuplicantFoodDietPatch.cs;EffectPatch.cs;EggPatch.cs;ElementConsumerControl.cs;FabricatorQueuePatch.cs;HatchPatch.cs;OvercrowdedPatch.cs;OxyfernPatch.cs;PowerTinkerPatch.cs;PumpPatch.cs;RonivansFridgePatch.cs;SnailPatch.cs;StorageControl.cs;StoragePatch.cs;TimerSensorPatch.cs;TubeWormPatch.cs;Properties\AssemblyInfo.cs;STRINGS\UI.cs" />
+        <Compile Include="ModEntry.cs;ModConfig.cs;BuildingStationPatch.cs;CrabPatch.cs;DoorPatch.cs;DreckoPatch.cs;DropPatch.cs;DuplicantFoodDietPatch.cs;EffectPatch.cs;EggPatch.cs;ElementConsumerControl.cs;FabricatorQueuePatch.cs;HatchPatch.cs;OvercrowdedPatch.cs;OxyfernPatch.cs;PowerTinkerPatch.cs;PumpPatch.cs;RonivansFridgePatch.cs;SnailPatch.cs;StorageControl.cs;StoragePatch.cs;SupermaterialRefineryPatch.cs;TimerSensorPatch.cs;TubeWormPatch.cs;Properties\AssemblyInfo.cs;STRINGS\UI.cs" />
     </ItemGroup>
 
     <ItemGroup>
