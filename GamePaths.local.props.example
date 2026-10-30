@@ -1,0 +1,7 @@
+<Project>
+    <!-- 复制为 GamePaths.local.props 后填写本机绝对路径；本机配置不提交。 -->
+    <PropertyGroup>
+        <GameRootDir Condition="'$(GameRootDir)' == ''"></GameRootDir>
+        <ModDevRoot Condition="'$(ModDevRoot)' == ''">$(USERPROFILE)\Documents\Klei\OxygenNotIncluded\mods\Dev</ModDevRoot>
+    </PropertyGroup>
+</Project>

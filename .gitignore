@@ -1,5 +1,9 @@
 GameSource/
-ExternalModSources/
+External/
+Artifacts/
+GamePaths.local.props
+Docs/
+AGENTS.md
 .tmp/
 
 [Bb]in/
@@ -11,6 +15,8 @@ x86/
 
 .vs/
 .idea/
+.codex/
+.claude/
 *.user
 *.suo
 *.userosscache

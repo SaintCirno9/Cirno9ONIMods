@@ -1,38 +1,28 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterCoolers", "BetterCoolers\BetterCoolers.csproj", "{F77F9E7A-1FA4-40DD-9EC6-A2E61C7B0066}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterCoolers", "Mods\BetterCoolers\BetterCoolers.csproj", "{F77F9E7A-1FA4-40DD-9EC6-A2E61C7B0066}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdjustableSolidTransferArm", "AdjustableSolidTransferArm\AdjustableSolidTransferArm.csproj", "{3AC8CE94-B714-41F8-B7E4-C9E537A8A454}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdjustableSolidTransferArm", "Mods\AdjustableSolidTransferArm\AdjustableSolidTransferArm.csproj", "{3AC8CE94-B714-41F8-B7E4-C9E537A8A454}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdjustableRobotMiner", "AdjustableRobotMiner\AdjustableRobotMiner.csproj", "{D32AFAC4-6D76-4501-91CD-26DEC730A67C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatsUnlimited", "Mods\StatsUnlimited\StatsUnlimited.csproj", "{CFD64B36-2434-4618-9CF4-BEB121ADDCED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperElectrolyzer", "SuperElectrolyzer\SuperElectrolyzer.csproj", "{2F953B2D-4C89-4F85-B877-752484321371}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZonedSolidTransferArm", "Mods\ZonedSolidTransferArm\ZonedSolidTransferArm.csproj", "{7D661C0C-CD22-44A5-9791-C5A230373F90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BiggerCritterDropOff", "BiggerCritterDropOff\BiggerCritterDropOff.csproj", "{F691E006-525D-41B6-A167-2BCCA2CC9C44}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdaptiveBuildingMenu", "Mods\AdaptiveBuildingMenu\AdaptiveBuildingMenu.csproj", "{7812A1B7-3F66-4B4D-B2A2-79C099E9D9AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdjustableMotionSensor", "AdjustableMotionSensor\AdjustableMotionSensor.csproj", "{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceSensor", "Mods\ResourceSensor\ResourceSensor.csproj", "{0405CD4C-CAD4-4D16-ABF2-13F0AD08CC50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CritterPlantTweaks", "CritterPlantTweaks\CritterPlantTweaks.csproj", "{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialRevolutionCompatibilityFix", "Mods\IndustrialRevolutionCompatibilityFix\IndustrialRevolutionCompatibilityFix.csproj", "{8F739602-A6E3-4A32-BE6C-D3588277348B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatsUnlimited", "StatsUnlimited\StatsUnlimited.csproj", "{CFD64B36-2434-4618-9CF4-BEB121ADDCED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyTweaks", "Mods\ColonyTweaks\ColonyTweaks.csproj", "{8D56AABE-44A8-46B0-A509-0C50CC51D382}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZonedSolidTransferArm", "ZonedSolidTransferArm\ZonedSolidTransferArm.csproj", "{7D661C0C-CD22-44A5-9791-C5A230373F90}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryTemperatureLimit", "Mods\DeliveryTemperatureLimit\DeliveryTemperatureLimit.csproj", "{8C9623EF-0499-4143-83A9-AC79F08DC801}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdaptiveBuildingMenu", "AdaptiveBuildingMenu\AdaptiveBuildingMenu.csproj", "{7812A1B7-3F66-4B4D-B2A2-79C099E9D9AC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporaryFixes", "Mods\TemporaryFixes\TemporaryFixes.csproj", "{3D9B01C8-02BF-4879-831F-C0059555110A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceSensor", "ResourceSensor\ResourceSensor.csproj", "{0405CD4C-CAD4-4D16-ABF2-13F0AD08CC50}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottleEmptierThreshold", "Mods\BottleEmptierThreshold\BottleEmptierThreshold.csproj", "{1B6D28DB-8A58-4DCB-9B44-FBE7B89A7C4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndustrialRevolutionCompatibilityFix", "IndustrialRevolutionCompatibilityFix\IndustrialRevolutionCompatibilityFix.csproj", "{8F739602-A6E3-4A32-BE6C-D3588277348B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyTweaks", "ColonyTweaks\ColonyTweaks.csproj", "{8D56AABE-44A8-46B0-A509-0C50CC51D382}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryTemperatureLimit", "DeliveryTemperatureLimit\DeliveryTemperatureLimit.csproj", "{8C9623EF-0499-4143-83A9-AC79F08DC801}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporaryFixes", "TemporaryFixes\TemporaryFixes.csproj", "{3D9B01C8-02BF-4879-831F-C0059555110A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BottleEmptierThreshold", "BottleEmptierThreshold\BottleEmptierThreshold.csproj", "{1B6D28DB-8A58-4DCB-9B44-FBE7B89A7C4C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TidalSpringRandomizer", "TidalSpringRandomizer\TidalSpringRandomizer.csproj", "{3CEAFD55-0BD8-4004-BB1A-B4C94D93D524}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TidalSpringRandomizer", "Mods\TidalSpringRandomizer\TidalSpringRandomizer.csproj", "{3CEAFD55-0BD8-4004-BB1A-B4C94D93D524}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,66 +58,6 @@ Global
 		{3AC8CE94-B714-41F8-B7E4-C9E537A8A454}.Release|x64.Build.0 = Release|Any CPU
 		{3AC8CE94-B714-41F8-B7E4-C9E537A8A454}.Release|x86.ActiveCfg = Release|Any CPU
 		{3AC8CE94-B714-41F8-B7E4-C9E537A8A454}.Release|x86.Build.0 = Release|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Debug|x64.Build.0 = Debug|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Debug|x86.Build.0 = Debug|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Release|x64.ActiveCfg = Release|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Release|x64.Build.0 = Release|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Release|x86.ActiveCfg = Release|Any CPU
-		{D32AFAC4-6D76-4501-91CD-26DEC730A67C}.Release|x86.Build.0 = Release|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Debug|x64.Build.0 = Debug|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Debug|x86.Build.0 = Debug|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Release|x64.ActiveCfg = Release|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Release|x64.Build.0 = Release|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Release|x86.ActiveCfg = Release|Any CPU
-		{2F953B2D-4C89-4F85-B877-752484321371}.Release|x86.Build.0 = Release|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Debug|x64.Build.0 = Debug|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Debug|x86.Build.0 = Debug|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Release|x64.ActiveCfg = Release|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Release|x64.Build.0 = Release|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Release|x86.ActiveCfg = Release|Any CPU
-		{F691E006-525D-41B6-A167-2BCCA2CC9C44}.Release|x86.Build.0 = Release|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Debug|x64.Build.0 = Debug|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Debug|x86.Build.0 = Debug|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Release|x64.ActiveCfg = Release|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Release|x64.Build.0 = Release|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Release|x86.ActiveCfg = Release|Any CPU
-		{2C73549A-D1EA-4167-A8DF-8AD3A9A41B37}.Release|x86.Build.0 = Release|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Debug|x64.Build.0 = Debug|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Debug|x86.Build.0 = Debug|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Release|x64.ActiveCfg = Release|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Release|x64.Build.0 = Release|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Release|x86.ActiveCfg = Release|Any CPU
-		{F0D2EE7A-931A-4E3D-AC1B-5766EB6D627A}.Release|x86.Build.0 = Release|Any CPU
 		{CFD64B36-2434-4618-9CF4-BEB121ADDCED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CFD64B36-2434-4618-9CF4-BEB121ADDCED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFD64B36-2434-4618-9CF4-BEB121ADDCED}.Debug|x64.ActiveCfg = Debug|Any CPU

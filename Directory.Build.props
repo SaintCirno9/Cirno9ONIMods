@@ -1,0 +1,16 @@
+<Project>
+    <PropertyGroup>
+        <IsOniMod Condition="'$(UsingMicrosoftNETSdk)' == 'true' and '$(MSBuildProjectDirectory)' == '$(MSBuildThisFileDirectory)Mods\$(MSBuildProjectName)'">true</IsOniMod>
+    </PropertyGroup>
+    <Import Project="$(MSBuildThisFileDirectory)GamePaths.local.props" Condition="'$(IsOniMod)' == 'true' and Exists('$(MSBuildThisFileDirectory)GamePaths.local.props')" />
+    <PropertyGroup Condition="'$(IsOniMod)' == 'true'">
+        <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
+        <Authors>SaintCirno9</Authors>
+        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+        <DeployMods Condition="'$(DeployMods)' == ''">false</DeployMods>
+        <GameManagedDir Condition="'$(GameRootDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(GameRootDir)'))OxygenNotIncluded_Data\Managed\</GameManagedDir>
+        <BaseOutputPath>$(RepositoryRoot)Artifacts\bin\$(MSBuildProjectName)\</BaseOutputPath>
+        <BaseIntermediateOutputPath>$(RepositoryRoot)Artifacts\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+        <OniPackageAfterTargets>Build</OniPackageAfterTargets>
+    </PropertyGroup>
+</Project>

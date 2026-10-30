@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+        <RootNamespace>TemporaryFixes</RootNamespace>
+        <AssemblyName>TemporaryFixes</AssemblyName>
+        <LangVersion>latest</LangVersion>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ModMetadata Include="mod.yaml;mod_info.yaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="0Harmony" Private="False">
+            <HintPath>$(GameManagedDir)0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp" Private="False">
+            <HintPath>$(GameManagedDir)Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp-firstpass" Private="False">
+            <HintPath>$(GameManagedDir)Assembly-CSharp-firstpass.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule" Private="False">
+            <HintPath>$(GameManagedDir)UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+
+</Project>

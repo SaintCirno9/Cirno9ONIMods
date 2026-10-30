@@ -1,0 +1,44 @@
+<Project>
+    <Target Name="CleanOniOutput" BeforeTargets="BeforeBuild" Condition="'$(IsOniMod)' == 'true'">
+        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
+    </Target>
+
+    <Target Name="CheckOniReferences" BeforeTargets="ResolveAssemblyReferences" Condition="'$(IsOniMod)' == 'true'">
+        <Error Condition="'$(GameRootDir)' == ''" Text="未配置游戏目录。请复制 GamePaths.local.props.example 为 GamePaths.local.props，填写 GameRootDir；也可传入 -p:GameRootDir。" />
+        <Error Condition="!Exists('$(GameManagedDir)Assembly-CSharp.dll')" Text="找不到游戏程序集：$(GameManagedDir)Assembly-CSharp.dll。请检查 GameRootDir。" />
+    </Target>
+
+    <Target Name="StageOniMod" AfterTargets="$(OniPackageAfterTargets)" Condition="'$(IsOniMod)' == 'true'">
+        <ItemGroup>
+            <_OniPackageFile Include="$(TargetPath)">
+                <PackagePath>$(TargetFileName)</PackagePath>
+            </_OniPackageFile>
+            <_OniPackageFile Include="@(ModMetadata)">
+                <PackagePath>%(ModMetadata.Filename)%(ModMetadata.Extension)</PackagePath>
+            </_OniPackageFile>
+            <_OniPackageFile Include="@(ModRootFiles)">
+                <PackagePath>%(ModRootFiles.Filename)%(ModRootFiles.Extension)</PackagePath>
+            </_OniPackageFile>
+            <_OniPackageFile Include="@(ModTranslation)">
+                <PackagePath>translations\%(ModTranslation.Filename)%(ModTranslation.Extension)</PackagePath>
+            </_OniPackageFile>
+            <_OniPackageFile Include="@(ModAssetFiles)">
+                <PackagePath>anim\%(ModAssetFiles.RecursiveDir)%(ModAssetFiles.Filename)%(ModAssetFiles.Extension)</PackagePath>
+            </_OniPackageFile>
+        </ItemGroup>
+        <Copy SourceFiles="@(_OniPackageFile)" DestinationFiles="@(_OniPackageFile->'$(TargetDir)%(PackagePath)')" SkipUnchangedFiles="true" />
+    </Target>
+
+    <Target Name="DeployOniMod" AfterTargets="StageOniMod" Condition="'$(IsOniMod)' == 'true' and '$(DeployMods)' == 'true'">
+        <Error Condition="'$(ModDevRoot)' == ''" Text="未配置部署目录。请在 GamePaths.local.props 中填写 ModDevRoot，或传入 -p:ModDevRoot。" />
+        <PropertyGroup>
+            <_OniDeployRoot>$([System.IO.Path]::GetFullPath('$(ModDevRoot)').TrimEnd('\'))</_OniDeployRoot>
+            <_OniDeployDir>$([System.IO.Path]::GetFullPath('$(_OniDeployRoot)\$(MSBuildProjectName)'))</_OniDeployDir>
+            <_OniDeployParent>$([System.IO.Path]::GetDirectoryName('$(_OniDeployDir)'))</_OniDeployParent>
+        </PropertyGroup>
+        <Error Condition="'$(_OniDeployParent)' != '$(_OniDeployRoot)'" Text="部署目标不在指定 Mod 根目录的直接子目录内：$(_OniDeployDir)。" />
+        <Message Importance="high" Text="部署 $(MSBuildProjectName) 到 $(_OniDeployDir)" />
+        <RemoveDir Directories="$(_OniDeployDir)" Condition="Exists('$(_OniDeployDir)')" />
+        <Copy SourceFiles="@(_OniPackageFile->'$(TargetDir)%(PackagePath)')" DestinationFiles="@(_OniPackageFile->'$(_OniDeployDir)\%(PackagePath)')" />
+    </Target>
+</Project>
