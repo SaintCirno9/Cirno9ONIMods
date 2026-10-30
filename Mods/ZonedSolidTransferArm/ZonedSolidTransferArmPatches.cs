@@ -121,12 +121,14 @@ public static class ZonedSolidTransferArmPatches
 
     private static bool UsesOnlyGlobalZone(SolidTransferArm arm)
     {
-        return arm.GetComponent<ZonedSolidTransferArmControl>() is { } control && control.UsesOnlyGlobalZone();
+        return ZonedSolidTransferArmControl.TryGetControl(arm, out ZonedSolidTransferArmControl control) &&
+               control.UsesOnlyGlobalZone();
     }
 
     private static bool UsesGlobalZone(SolidTransferArm arm)
     {
-        return arm.GetComponent<ZonedSolidTransferArmControl>() is { } control && control.UsesGlobalZone();
+        return ZonedSolidTransferArmControl.TryGetControl(arm, out ZonedSolidTransferArmControl control) &&
+               control.UsesGlobalZone();
     }
 
     [HarmonyPatch(typeof(PlayerController), "OnPrefabInit")]
@@ -504,7 +506,7 @@ public static class ZonedSolidTransferArmPatches
         {
             HashSet<int> reachableCells = (HashSet<int>)ReachableCellsField.GetValue(arm);
             List<Pickupable> pickupables = (List<Pickupable>)PickupablesField.GetValue(arm);
-            ZonedSolidTransferArmControl control = arm.GetComponent<ZonedSolidTransferArmControl>();
+            bool hasControl = ZonedSolidTransferArmControl.TryGetControl(arm, out ZonedSolidTransferArmControl control);
 
             ListPool<int, SolidTransferArm>.PooledList oldReachable = ListPool<int, SolidTransferArm>.Allocate();
             oldReachable.AddRange(reachableCells);
@@ -512,7 +514,7 @@ public static class ZonedSolidTransferArmPatches
             MinionGroupProber.Get().Vacate(oldReachable);
 
             pickupables.Clear();
-            if (control != null && UsesGlobalZone(arm))
+            if (hasControl && control.UsesGlobalZone())
             {
                 FillPickupablesFromSharedGlobalZone(arm, control, pickupables);
             }
@@ -857,8 +859,8 @@ public static class ZonedSolidTransferArmPatches
         {
             CachedFetchChores cachedFetchChores = GetCachedFetchChores(arm);
             float currentGameTime = GameClock.Instance?.GetTime() ?? 0f;
-            ZonedSolidTransferArmControl control = arm.GetComponent<ZonedSolidTransferArmControl>();
-            if (control == null || !control.UsesGlobalZone())
+            if (!ZonedSolidTransferArmControl.TryGetControl(arm, out ZonedSolidTransferArmControl control) ||
+                !control.UsesGlobalZone())
             {
                 if (cachedFetchChores.ZoneCells != zoneCells ||
                     cachedFetchChores.ZoneCellCount != zoneCells.Count ||

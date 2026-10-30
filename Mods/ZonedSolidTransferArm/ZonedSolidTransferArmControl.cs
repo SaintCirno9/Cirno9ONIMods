@@ -15,6 +15,8 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
 
     private static readonly ConcurrentDictionary<SolidTransferArm, HashSet<int>> ZoneSnapshots = new();
     private static readonly ConcurrentDictionary<ZonedSolidTransferArmControl, byte> Controls = new();
+    // AsyncUpdate 在工作线程执行，不能调用 GetComponent，需由主线程预先登记。
+    private static readonly ConcurrentDictionary<SolidTransferArm, ZonedSolidTransferArmControl> ControlsByArm = new();
     private readonly HashSet<int> cells = new();
 
     [Serialize]
@@ -69,6 +71,11 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
         return ZoneSnapshots.TryGetValue(arm, out snapshot);
     }
 
+    public static bool TryGetControl(SolidTransferArm arm, out ZonedSolidTransferArmControl control)
+    {
+        return ControlsByArm.TryGetValue(arm, out control);
+    }
+
     public bool UsesOnlyGlobalZone()
     {
         return zoneModeEnabled && useGlobalZone && cells.Count == 0;
@@ -108,6 +115,8 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
     {
         base.OnSpawn();
         Controls[this] = 0;
+        // 必须早于 SyncSnapshot：AsyncUpdate 一旦读到区域快照就会查找控制组件。
+        ControlsByArm[solidTransferArm] = this;
         worldId = this.GetMyWorldId();
         LoadCells();
         if (zoneModeEnabled)
@@ -122,6 +131,7 @@ public class ZonedSolidTransferArmControl : KMonoBehaviour
     {
         Controls.TryRemove(this, out _);
         ZoneSnapshots.TryRemove(solidTransferArm, out _);
+        ControlsByArm.TryRemove(solidTransferArm, out _);
         RestoreRangeVisualizer();
         base.OnCleanUp();
     }
