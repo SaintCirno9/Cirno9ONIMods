@@ -1,4 +1,8 @@
 <Project>
+    <Target Name="CheckOniConfiguration" BeforeTargets="BeforeBuild" Condition="'$(IsOniMod)' == 'true'">
+        <Error Condition="'$(Configuration)' != 'Release'" Text="本仓库只支持 Release 配置，当前为 $(Configuration)。" />
+    </Target>
+
     <Target Name="CleanOniOutput" BeforeTargets="BeforeBuild" Condition="'$(IsOniMod)' == 'true'">
         <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
     </Target>

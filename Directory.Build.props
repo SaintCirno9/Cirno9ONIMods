@@ -6,8 +6,9 @@
     <PropertyGroup Condition="'$(IsOniMod)' == 'true'">
         <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
         <Authors>SaintCirno9</Authors>
+        <Configurations>Release</Configurations>
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-        <DeployMods Condition="'$(DeployMods)' == ''">false</DeployMods>
+        <DeployMods Condition="'$(DeployMods)' == ''">true</DeployMods>
         <GameManagedDir Condition="'$(GameRootDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(GameRootDir)'))OxygenNotIncluded_Data\Managed\</GameManagedDir>
         <BaseOutputPath>$(RepositoryRoot)Artifacts\bin\$(MSBuildProjectName)\</BaseOutputPath>
         <BaseIntermediateOutputPath>$(RepositoryRoot)Artifacts\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
